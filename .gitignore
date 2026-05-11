@@ -1,0 +1,38 @@
+# Java
+target/
+*.class
+*.jar
+*.war
+.mvn/
+mvnw
+mvnw.cmd
+hs_err_pid*
+
+# Node
+node_modules/
+dist/
+.angular/
+*.log
+npm-debug.log*
+
+# IDE
+.idea/
+.vscode/
+*.iml
+*.iws
+.project
+.classpath
+.settings/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Env
+.env
+.env.local
+.env.*.local
+
+# Build outputs
+build/
+out/

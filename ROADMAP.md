@@ -16,7 +16,7 @@ Status: ⬜ Pendente · 🚧 Em andamento · ✅ Concluída
 
 ---
 
-## Fase 0 — Bootstrap do Monorepo · 🚧
+## Fase 0 — Bootstrap do Monorepo · ✅
 
 **Objetivo:** Estabelecer infraestrutura do repositório (docs, configs, ADRs, templates, estrutura de pastas) sem código de aplicação.
 
@@ -35,7 +35,9 @@ Status: ⬜ Pendente · 🚧 Em andamento · ✅ Concluída
 
 ---
 
-## Fase 1 — Backend Core: Catálogo + Identidade · ⬜
+## Fase 1 — Backend Core: Catálogo + Identidade · 🚧
+
+> **Sessão pausada em 2026-05-11 (~85%).** Falta validar com `mvn clean install` e completar testes. Checklist em [`ai-memory/roadmap/fase-1-pendencias.md`](./ai-memory/roadmap/fase-1-pendencias.md).
 
 **Objetivo:** Backend Spring Boot multi-module com autenticação JWT e catálogo de produtos.
 

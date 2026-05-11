@@ -19,6 +19,7 @@ plano-completo.md              ← FONTE DE VERDADE (V2, 12 fases, prefixo PH-)
 | [plano-v1-portfolio-9-fases.md](plano-v1-portfolio-9-fases.md) | Plano original V1 — 9 fases, framing portfolio (checklist de skills para vaga Senior Full Stack) | Apenas histórico. Substituído por V2 (e-commerce completo com NF-e e back-office). Útil só para entender a evolução do escopo. |
 | [prompt-execucao-fase-0-1.md](prompt-execucao-fase-0-1.md) | Prompt operacional **pronto para colar no Claude Code** executando Fases 0 (bootstrap) e 1 (backend core) numa sessão. Especifica entidades, DTOs, endpoints, migrations, checklist, padrão de commits | Colar quando for iniciar o desenvolvimento de fato. Mais concreto que o plano estratégico. |
 | [prompt-ativacao-sessao.md](prompt-ativacao-sessao.md) | Bloco de contexto para colar **antes** do prompt de cada fase: ativa skills locais, plugins (context7, frontend-design), lembra projetos anteriores e padrões do Ali | Colar no início de cada sessão nova de execução. Substituir `Fase atual: [N]` antes de usar. |
+| [fase-1-pendencias.md](fase-1-pendencias.md) | **Pendências da Fase 1** (sessão pausada em 2026-05-11): checklist do que foi entregue, riscos a verificar quando rodar `mvn clean install`, testes faltantes, onde retomar | Ler primeiro ao iniciar a próxima sessão de Fase 1. Apagar quando a Fase 1 for marcada como ✅. |
 
 ## Convenções de naming notadas
 

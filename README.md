@@ -4,7 +4,7 @@
 
 Pet Hub é o e-commerce de produtos tecnológicos para pets — smart collars, GPS trackers, câmeras pet, comedouros IoT e muito mais — com recomendações personalizadas por IA generativa.
 
-Parte do **Ali's Pet Ecosystem** junto com o [Pet Diary](#) (prontuário digital de pets).
+Parte do **Ali's Pet Ecosystem** junto com o **Pet Diary** (prontuário digital de pets).
 
 ## 🛠️ Tech Stack
 

@@ -4,8 +4,6 @@ target/
 *.jar
 *.war
 .mvn/
-mvnw
-mvnw.cmd
 hs_err_pid*
 
 # Node
@@ -19,7 +17,6 @@ npm-debug.log*
 .idea/
 .vscode/
 *.iml
-*.iws
 .project
 .classpath
 .settings/
@@ -33,6 +30,6 @@ Thumbs.db
 .env.local
 .env.*.local
 
-# Build outputs
+# Build
 build/
 out/

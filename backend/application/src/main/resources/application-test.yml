@@ -1,0 +1,24 @@
+spring:
+  datasource:
+    url: jdbc:tc:postgresql:16-alpine:///pethub_test
+    driver-class-name: org.testcontainers.jdbc.ContainerDatabaseDriver
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    show-sql: false
+  flyway:
+    enabled: true
+
+app:
+  security:
+    jwt:
+      secret: test-only-secret-must-be-at-least-32-characters-long-for-hmac
+      access-token-ttl-minutes: 15
+      refresh-token-ttl-days: 7
+    cors:
+      allowed-origins: http://localhost:4200
+
+logging:
+  level:
+    com.alispnor.pethub: INFO
+    org.springframework.security: WARN

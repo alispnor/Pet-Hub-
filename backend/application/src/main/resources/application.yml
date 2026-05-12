@@ -59,6 +59,11 @@ app:
     # Chave AES-256 em base64 (32 bytes). Default dev-only — em produção,
     # injetar via APP_ENCRYPTION_KEY a partir de secret manager.
     key: ${APP_ENCRYPTION_KEY:8E+PGOrLeLUCDk1d6BkIwRl9DYE19UdPcAxV90Ob7mg=}
+  uploads:
+    # Em dev grava em ./var/uploads (gitignored). Em prod usar volume/persistência.
+    dir: ${APP_UPLOADS_DIR:var/uploads}
+    public-base-url: ${APP_UPLOADS_PUBLIC_BASE_URL:http://localhost:8080/files}
+    max-bytes: ${APP_UPLOADS_MAX_BYTES:5242880}
 
 logging:
   level:

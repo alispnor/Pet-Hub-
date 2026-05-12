@@ -96,3 +96,7 @@ test-results/
 .next/
 .nuxt/
 .svelte-kit/
+
+# Uploads locais (fotos de pet etc.)
+var/
+backend/var/

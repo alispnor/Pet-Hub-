@@ -1,24 +1,27 @@
-# Pet Hub — ambiente local de desenvolvimento (Fase 1)
+# Pet Hub — ambiente local de desenvolvimento
 #
-# Sobe apenas serviços de infraestrutura (Postgres, Redis, pgAdmin).
-# O backend roda na JVM diretamente via `mvn spring-boot:run` no módulo
-# `backend/application/`. A partir da Fase 8 o backend também
-# containeriza (docker-compose.yml na raiz).
+# Sobe os serviços de infraestrutura (Postgres, Redis, pgAdmin). O backend
+# roda separadamente via `mvn spring-boot:run` no módulo `backend/application/`.
+#
+# Uso recomendado (a partir da raiz do repo):
+#   docker compose --env-file .env.local -f infrastructure/docker/docker-compose.dev.yml up -d
+#
+# Copie `.env.local.example` para `.env.local` antes de subir.
 
 services:
   postgres:
     image: postgres:16-alpine
     container_name: pethub-postgres
     environment:
-      POSTGRES_DB: pethub
-      POSTGRES_USER: pethub
-      POSTGRES_PASSWORD: pethub
+      POSTGRES_DB: ${POSTGRES_DB:-pethub}
+      POSTGRES_USER: ${POSTGRES_USER:-pethub}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-pethub}
     ports:
-      - "5432:5432"
+      - "${POSTGRES_PORT:-5432}:5432"
     volumes:
       - postgres-data:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U pethub -d pethub"]
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-pethub} -d ${POSTGRES_DB:-pethub}"]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -28,7 +31,7 @@ services:
     image: redis:7-alpine
     container_name: pethub-redis
     ports:
-      - "6379:6379"
+      - "${REDIS_PORT:-6379}:6379"
     healthcheck:
       test: ["CMD", "redis-cli", "ping"]
       interval: 10s
@@ -40,11 +43,11 @@ services:
     image: dpage/pgadmin4:latest
     container_name: pethub-pgadmin
     environment:
-      PGADMIN_DEFAULT_EMAIL: admin@pethub.com
-      PGADMIN_DEFAULT_PASSWORD: admin
+      PGADMIN_DEFAULT_EMAIL: ${PGADMIN_EMAIL:-admin@pethub.com}
+      PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_PASSWORD:-admin}
       PGADMIN_CONFIG_SERVER_MODE: 'False'
     ports:
-      - "5050:80"
+      - "${PGADMIN_PORT:-5050}:80"
     volumes:
       - pgadmin-data:/var/lib/pgadmin
     depends_on:

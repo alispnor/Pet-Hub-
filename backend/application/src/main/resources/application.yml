@@ -23,6 +23,13 @@ spring:
     enabled: true
     baseline-on-migrate: true
     locations: classpath:db/migration
+  data:
+    redis:
+      host: ${REDIS_HOST:localhost}
+      port: ${REDIS_PORT:6379}
+      timeout: 3s
+  cache:
+    type: redis
 
 server:
   port: 8080
@@ -64,6 +71,8 @@ app:
     dir: ${APP_UPLOADS_DIR:var/uploads}
     public-base-url: ${APP_UPLOADS_PUBLIC_BASE_URL:http://localhost:8080/files}
     max-bytes: ${APP_UPLOADS_MAX_BYTES:5242880}
+  viacep:
+    base-url: ${VIACEP_BASE_URL:https://viacep.com.br}
 
 logging:
   level:

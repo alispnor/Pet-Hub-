@@ -1,7 +1,32 @@
 # Fase 1 — Pendências e checklist final
 
-> **Status:** Fase 1 entregue ~85%. Sessão pausada em 2026-05-11.
+> **Status:** Fase 1 entregue ~85%. Sessão pausada em 2026-05-11, retomada parcial em 2026-05-12.
 > **Próxima sessão:** completar os itens abaixo, validar com `mvn clean install`, e só então marcar Fase 1 como ✅ no `ROADMAP.md`.
+
+## 🔄 Progresso da retomada (2026-05-12)
+
+Validação rodada com Maven em container (`maven:3.9-eclipse-temurin-21`) — máquina não tem JDK/Maven local. Comando usado:
+
+```bash
+docker run --rm -v "$PWD":/workspace -v /home/ali/.m2:/root/.m2 \
+  -w /workspace maven:3.9-eclipse-temurin-21 \
+  mvn -B -ntp clean install -DskipTests
+```
+
+**Resolvido:**
+- ✅ `common` agora compila. Faltavam `spring-boot-starter-data-jpa` (para `org.springframework.data.domain.Page` em `PageableResponse`) e `spring-boot-starter-security` (para `BadCredentialsException`, `AuthenticationException`, `AccessDeniedException` em `GlobalExceptionHandler`). Adicionados em `backend/common/pom.xml` — **mudança não commitada ainda**.
+
+**Próximo erro a resolver (onde a sessão parou):**
+- ❌ Módulo `identity` falha ao resolver `com.bucket4j:bucket4j_jdk17-core:8.10.1` — artefato não existe no Maven Central com essas coordenadas. Coordenadas corretas precisam ser confirmadas: provavelmente `com.bucket4j:bucket4j-core` (sem `_jdk17`) na linha 8.x, OU mudar para versão mais antiga (7.x usava `com.github.vladimir-bukhtoyarov:bucket4j-core`). Atualizar `pom.xml` parent (linha ~104) e `identity/pom.xml`. Conferir em https://central.sonatype.com/artifact/com.bucket4j/bucket4j-core.
+
+**Status do reactor após pausa:**
+- Pet Hub Backend — SUCCESS
+- Pet Hub :: Common — SUCCESS (após fix do pom)
+- Pet Hub :: Identity — FAILURE (bucket4j)
+- Pet Hub :: Catalog — SKIPPED
+- Pet Hub :: Application — SKIPPED
+
+Cache Maven em `/home/ali/.m2` foi populado parcialmente, então próxima sessão arranca mais rápido.
 
 ## ✅ O que foi entregue nesta sessão (10 commits)
 

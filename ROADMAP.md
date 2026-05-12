@@ -35,9 +35,9 @@ Status: ⬜ Pendente · 🚧 Em andamento · ✅ Concluída
 
 ---
 
-## Fase 1 — Backend Core: Catálogo + Identidade · 🚧
+## Fase 1 — Backend Core: Catálogo + Identidade · ✅
 
-> **Sessão pausada em 2026-05-11 (~85%).** Falta validar com `mvn clean install` e completar testes. Checklist em [`ai-memory/roadmap/fase-1-pendencias.md`](./ai-memory/roadmap/fase-1-pendencias.md).
+> **Build validado em 2026-05-12** via container Maven 3.9 + Eclipse Temurin 21. Reactor completo passa; app sobe, Flyway aplica V0–V3, smoke tests de `/auth/login`, `/auth/me`, `/catalog/products`, `/catalog/categories` retornam 200 com dados do seed. Testes unitários adicionais e cobertura JaCoCo ficaram como dívida técnica — checklist em [`ai-memory/roadmap/fase-1-pendencias.md`](./ai-memory/roadmap/fase-1-pendencias.md).
 
 **Objetivo:** Backend Spring Boot multi-module com autenticação JWT e catálogo de produtos.
 

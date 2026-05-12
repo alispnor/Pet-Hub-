@@ -9,6 +9,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Component;
@@ -55,7 +56,7 @@ public class LoginRateLimitFilter extends OncePerRequestFilter {
         if (!probe.isConsumed()) {
             var retryAfterSeconds = probe.getNanosToWaitForRefill() / 1_000_000_000L;
             log.info("Rate limit excedido em /auth/login para IP={}, retry em {}s", ip, retryAfterSeconds);
-            response.setStatus(HttpServletResponse.SC_TOO_MANY_REQUESTS);
+            response.setStatus(HttpStatus.TOO_MANY_REQUESTS.value());
             response.setHeader("Retry-After", String.valueOf(retryAfterSeconds));
             response.setContentType(MediaType.APPLICATION_PROBLEM_JSON_VALUE);
             objectMapper.writeValue(response.getWriter(), Map.of(

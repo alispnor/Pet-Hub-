@@ -7,10 +7,11 @@ import com.alispnor.pethub.customer.application.dto.CreateFormaPagamentoRequest;
 import com.alispnor.pethub.customer.application.dto.FormaPagamentoResponse;
 import com.alispnor.pethub.customer.application.dto.TokenizeCardRequest;
 import com.alispnor.pethub.customer.application.dto.TokenizeCardResponse;
+import com.alispnor.pethub.customer.domain.entity.Bandeira;
 import com.alispnor.pethub.customer.domain.entity.FormaPagamento;
 import com.alispnor.pethub.customer.domain.entity.PerfilCliente;
-import com.alispnor.pethub.customer.infrastructure.payment.PaymentGateway;
 import com.alispnor.pethub.customer.infrastructure.persistence.FormaPagamentoRepository;
+import com.alispnor.pethub.payment.domain.PaymentGateway;
 import com.alispnor.pethub.customer.infrastructure.persistence.PerfilClienteRepository;
 import com.alispnor.pethub.identity.infrastructure.persistence.UsuarioRepository;
 import lombok.RequiredArgsConstructor;
@@ -39,8 +40,20 @@ public class FormaPagamentoService {
                 request.validadeMes(),
                 request.validadeAno()
         ));
-        log.info("Cartão tokenizado: bandeira={}, ultimos={}", result.bandeira(), result.ultimosQuatroDigitos());
-        return new TokenizeCardResponse(result.token(), result.bandeira(), result.ultimosQuatroDigitos());
+        var bandeira = mapBrand(result.brand());
+        log.info("Cartão tokenizado: bandeira={}, ultimos={}", bandeira, result.ultimosQuatroDigitos());
+        return new TokenizeCardResponse(result.token(), bandeira, result.ultimosQuatroDigitos());
+    }
+
+    private Bandeira mapBrand(PaymentGateway.Brand brand) {
+        return switch (brand) {
+            case VISA -> Bandeira.VISA;
+            case MASTER -> Bandeira.MASTER;
+            case AMEX -> Bandeira.AMEX;
+            case ELO -> Bandeira.ELO;
+            case HIPERCARD -> Bandeira.HIPERCARD;
+            case OUTRO -> Bandeira.OUTRO;
+        };
     }
 
     @Transactional(readOnly = true)

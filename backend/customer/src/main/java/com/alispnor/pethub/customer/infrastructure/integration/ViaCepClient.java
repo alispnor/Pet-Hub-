@@ -2,7 +2,6 @@ package com.alispnor.pethub.customer.infrastructure.integration;
 
 import com.alispnor.pethub.common.exception.ResourceNotFoundException;
 import com.alispnor.pethub.customer.application.dto.ViaCepResponse;
-import com.alispnor.pethub.customer.infrastructure.cache.CacheConfig;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cache.annotation.Cacheable;
@@ -28,7 +27,7 @@ public class ViaCepClient {
                 .build();
     }
 
-    @Cacheable(value = CacheConfig.CEP_CACHE, key = "#cep")
+    @Cacheable(value = "cep", key = "#cep")
     public ViaCepResponse fetch(String cep) {
         log.info("Consultando ViaCEP para {} (cache MISS)", cep);
         try {

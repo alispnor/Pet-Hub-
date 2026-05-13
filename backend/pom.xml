@@ -24,6 +24,7 @@
         <module>catalog</module>
         <module>payment</module>
         <module>customer</module>
+        <module>cart</module>
         <module>application</module>
     </modules>
 
@@ -69,6 +70,11 @@
             <dependency>
                 <groupId>com.alispnor.pethub</groupId>
                 <artifactId>pet-hub-payment</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.alispnor.pethub</groupId>
+                <artifactId>pet-hub-cart</artifactId>
                 <version>${project.version}</version>
             </dependency>
 

@@ -47,6 +47,10 @@
             <groupId>com.alispnor.pethub</groupId>
             <artifactId>pet-hub-shipping</artifactId>
         </dependency>
+        <dependency>
+            <groupId>com.alispnor.pethub</groupId>
+            <artifactId>pet-hub-checkout</artifactId>
+        </dependency>
 
         <dependency>
             <groupId>org.springframework.boot</groupId>

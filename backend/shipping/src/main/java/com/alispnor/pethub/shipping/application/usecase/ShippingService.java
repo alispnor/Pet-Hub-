@@ -5,6 +5,7 @@ import com.alispnor.pethub.catalog.infrastructure.persistence.ProdutoRepository;
 import com.alispnor.pethub.common.exception.BusinessRuleException;
 import com.alispnor.pethub.common.exception.ResourceNotFoundException;
 import com.alispnor.pethub.shipping.application.dto.OpcaoFreteResponse;
+import com.alispnor.pethub.shipping.application.dto.OpcoesFreteResponse;
 import com.alispnor.pethub.shipping.application.dto.PackageData;
 import com.alispnor.pethub.shipping.application.dto.ShippingCalculateRequest;
 import com.alispnor.pethub.shipping.application.dto.ShippingItemRequest;
@@ -34,8 +35,12 @@ public class ShippingService {
     private final MotoboyLocalCalculator motoboy;
     private final TabeladoCalculator tabelado;
 
-    @Cacheable(value = "frete", key = "#request.cepDestino() + ':' + #request.itens().hashCode()")
     public List<OpcaoFreteResponse> calcular(ShippingCalculateRequest request) {
+        return calcularCached(request).opcoes();
+    }
+
+    @Cacheable(value = "frete", key = "#request.cepDestino() + ':' + #request.itens().hashCode()")
+    public OpcoesFreteResponse calcularCached(ShippingCalculateRequest request) {
         log.info("Calculando frete para CEP {} com {} itens", request.cepDestino(), request.itens().size());
         var pacote = montarPacote(request.itens());
 
@@ -54,7 +59,7 @@ public class ShippingService {
         opcoes.sort(Comparator.comparing(OpcaoFreteResponse::valor));
         log.info("Frete CEP {} resolvido com {} opções (menor R$ {}, peso faturável {}kg)",
                 request.cepDestino(), opcoes.size(), opcoes.get(0).valor(), pacote.pesoFaturavelKg());
-        return List.copyOf(opcoes);
+        return new OpcoesFreteResponse(List.copyOf(opcoes));
     }
 
     private PackageData montarPacote(List<ShippingItemRequest> itens) {

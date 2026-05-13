@@ -27,6 +27,7 @@
         <module>cart</module>
         <module>pricing</module>
         <module>shipping</module>
+        <module>checkout</module>
         <module>application</module>
     </modules>
 
@@ -87,6 +88,11 @@
             <dependency>
                 <groupId>com.alispnor.pethub</groupId>
                 <artifactId>pet-hub-shipping</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.alispnor.pethub</groupId>
+                <artifactId>pet-hub-checkout</artifactId>
                 <version>${project.version}</version>
             </dependency>
 

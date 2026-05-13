@@ -59,7 +59,9 @@ Status: ⬜ Pendente · 🚧 Em andamento · ✅ Concluída
 
 ---
 
-## Fase 2 — Cliente: Pets, Endereços, Formas de Pagamento · ⬜
+## Fase 2 — Cliente: Pets, Endereços, Formas de Pagamento · ✅
+
+> **Entregue em 2026-05-13.** 6 sub-features (scaffold + AES-GCM crypto, Swagger/env-file, PerfilCliente com CPF criptografado, Pet com upload, Endereço + ViaCEP cached, FormaPagamento + MockPaymentGateway PCI-safe, admin endpoints com PII mascarada). Build verde, todos validados E2E via smoke tests. Testes unitários/integração formais com JaCoCo continuam como dívida técnica (mesmo bloqueio da Fase 1: Testcontainers em container). Histórico em [`ai-memory/roadmap/fase-2-pendencias.md`](./ai-memory/roadmap/fase-2-pendencias.md).
 
 **Objetivo:** Módulo `customer` com dados completos do cliente, compliance LGPD e tokenização de cartões (PCI-DSS).
 

@@ -1,7 +1,7 @@
 # Fase 2 — Pendências e checklist
 
-> **Status:** Fase 2 em andamento (4/6 commits entregues e validados em 2026-05-12).
-> **Próxima sessão:** continuar pelas tasks #10 e #11.
+> **Status:** Fase 2 ✅ entregue em 2026-05-13. 7 commits, todos validados E2E.
+> Testes unitários/integração formais com JaCoCo permanecem como dívida técnica (mesmo bloqueio da Fase 1: Testcontainers em container).
 
 ## ✅ Commits entregues nesta sessão (4)
 
@@ -38,46 +38,46 @@
    - `RedisCacheManager` configurado manualmente com `GenericJackson2JsonRedisSerializer` default
    - E2E: 1ª chamada 1711ms → 2ª 28ms (61× mais rápido)
 
-## ⚠️ O que falta (próxima sessão)
+## ✅ Commits entregues na continuação (2026-05-13)
 
-### Task #10 — FormaPagamento + MockPaymentGateway
+6. `c4ccb05 feat(customer): add payment method CRUD and mock pci-safe tokenization`
+   - V9 cria `formas_pagamento`; V10 alarga `validade_{mes,ano}` de SMALLINT para INTEGER (mesmo padrão de fix da V8)
+   - `PaymentGateway` + `MockPaymentGateway` (Luhn, detecção de bandeira por prefixo, valida CVV e expiry)
+   - `/payment-methods/tokenize` simula o que o frontend/gateway externo fariam
+   - `gateway_token` persistido mas nunca aparece nas responses
+   - Padrão único via partial index `uq_formas_pagamento_padrao`
 
-Spec original em `plano-completo.md` linhas ~414:
+7. `f9691df feat(customer): add admin customer listing and detail with masked pii`
+   - `GET /admin/customers?q=&page=&size=` + `GET /admin/customers/{id}`
+   - Email/telefone/CPF mascarados; cartões/tokens nunca expostos
+   - `@PreAuthorize` ROLE_ADMIN_LOJA/ROLE_GERENTE — cliente comum → 403
+   - `UsuarioRepository.searchByTipo` separado de `findByTipo` para evitar `function lower(bytea) does not exist` (Postgres inferia BYTEA no parâmetro NULL)
 
-- Migration V9: tabela `formas_pagamento` com colunas conforme LGPD/PCI:
-  - `id`, `perfil_cliente_id`, `tipo` (CARTAO_CREDITO/CARTAO_DEBITO/PIX/BOLETO), `apelido`, `gateway_token`, `bandeira` (VISA/MASTER/AMEX/ELO/HIPERCARD/OUTRO), `ultimos_quatro_digitos`, `nome_impresso`, `validade_mes`, `validade_ano`, `padrao`, `ativo`
-- Entity `FormaPagamento` + enums `TipoPagamento` e `Bandeira`
-- Interface `PaymentGateway` com `tokenizeCard(cardData) → token` (retorna `tok_mock_xxxx`)
-- Impl `MockPaymentGateway` no módulo customer (substituído por MP/Stripe sandbox na Fase 3)
-- Endpoints:
-  - `GET    /api/v1/customers/me/payment-methods`
-  - `POST   /api/v1/customers/me/payment-methods` (recebe token do gateway, **NÃO** o cartão)
-  - `DELETE /api/v1/customers/me/payment-methods/{id}`
-  - `POST   /api/v1/customers/me/payment-methods/{id}/default`
-- Para PIX e BOLETO, apenas o `tipo` é armazenado (sem token nem cartão)
-- Mesma lógica de "padrão único" usando partial unique index
+## ✅ Validações E2E acumuladas
 
-### Task #11 — Admin endpoints + testes de integração
+- Criptografia AES-GCM: CPF persistido como ciphertext base64 (52 bytes); hash SHA-256 determinístico permite detectar duplicidade sem decrypt
+- ViaCEP Redis cache: 1ª chamada 1711ms → 2ª 28ms (TTL 24h)
+- Isolamento por owner: 12+ tentativas de cross-user em pet/endereço/forma de pagamento → 403 (`ForbiddenException`)
+- Padrão único: 3 partial unique indexes (endereço entrega, endereço cobrança, forma pagamento padrão)
+- PCI-safe: tokenize com Luhn passa → token retornado; cartão duplicado com dígito errado → 422; persistência só guarda token + brand + últimos 4
+- Admin: cliente comum → 403; sem token → 403; admin filtra por nome/email funciona; admin tentando detalhar usuário ADMIN → 404
 
-- `GET /api/v1/admin/customers?q=&page=&size=` lista paginada com email mascarado, **sem** CPF/cartões
-- `GET /api/v1/admin/customers/{id}` detalhes (sem CPF completo, sem cartões)
-- Autorização: role `ADMIN_LOJA`/`GERENTE` (matriz da Fase 1)
-- Testes de integração (precisam JDK 21 + Maven nativos OU resolver Testcontainers-em-container):
-  - Cobertura > 85% do módulo customer (sem JaCoCo configurado ainda)
-  - Tentar criar 2 endereços padrão entrega → último prevalece (✅ já comprovado em smoke; falta como teste automatizado)
-  - Criptografia: salvar CPF, ler raw via JdbcTemplate, verificar que está cifrado (✅ já comprovado em smoke)
-  - Isolation: cliente A não vê dados de B (✅ já comprovado em smoke)
+## ⚠️ Dívida técnica restante (não bloqueia próximas fases)
+
+### Testes formais (acumulado Fase 1 + Fase 2)
+
+Todos os cenários smoke acima precisam virar testes unitários (Mockito) e de integração (Testcontainers) cobrindo `AuthService`, `ProdutoService`, `PerfilService`, `PetService`, `EnderecoService`, `FormaPagamentoService`, `AdminCustomerService`. Spec pede cobertura > 85% no módulo customer e > 80% no identity/catalog.
+
+**Bloqueio:** Testcontainers em container Maven falha (rede entre sibling containers). Solução: `sudo apt install openjdk-21-jdk maven` no host e rodar Maven nativamente. Sem isso, manter como dívida.
+
+### JaCoCo
+
+Plugin no parent POM com `merge` execution agregando relatórios. Sem ele, "cobertura > 85%" não é medível.
 
 ### Decisões a confirmar
 
-- `Usuario.cpf` ainda existe em texto plano (legado da V1). Decisão pragmática: deixar como está, mover lookup de CPF pra `perfil_cliente.cpf_hash`. Eventualmente DROP em uma migration de Fase 2/3.
-- `OPERADOR` ainda não tem acesso aos endpoints admin de customer — alinhar com matriz de roles.
-
-### Dívida técnica herdada da Fase 1 (ainda aberta)
-
-- Testes Testcontainers falham em container (rede docker entre sibling containers). Solução: instalar JDK 21 + Maven no host, OU rodar Maven na mesma bridge dos containers Testcontainers. Adiar.
-- Testes unitários Mockito para `AuthService`, `ProdutoService`, e agora `PerfilService`/`PetService`/`EnderecoService`.
-- JaCoCo plugin no parent POM.
+- `Usuario.cpf` ainda existe em texto plano (legado da V1). Decisão pragmática: deixar como está, mover lookup de CPF pra `perfil_cliente.cpf_hash`. Eventualmente DROP em uma migration de Fase 3.
+- Endpoints `/api/v1/admin/customers` exigem `ADMIN_LOJA` ou `GERENTE`; `OPERADOR` recebe 403 mesmo o `SecurityConfig` global permitindo `/admin/**`. Alinhar com a matriz de roles formal antes da Fase 6 (admin SPA).
 
 ## 🚀 Comando rápido para retomar
 

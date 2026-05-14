@@ -1,0 +1,89 @@
+/*
+ * Base styles + design tokens — segue ai-memory/design-system.md (light + dark).
+ * Inter via Google Fonts; @tailwind injeta utilities.
+ */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Inter+Tight:wght@600;700&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --bg-base: theme('colors.graphite.50');
+  --bg-surface: theme('colors.graphite.0');
+  --bg-elevated: theme('colors.graphite.0');
+  --text-primary: theme('colors.graphite.900');
+  --text-secondary: theme('colors.graphite.600');
+  --text-tertiary: theme('colors.graphite.400');
+  --border-subtle: theme('colors.graphite.200');
+  --border-strong: theme('colors.graphite.300');
+  --accent: theme('colors.coral.500');
+  --accent-hover: theme('colors.coral.600');
+}
+
+.dark {
+  --bg-base: theme('colors.graphite.950');
+  --bg-surface: theme('colors.graphite.900');
+  --bg-elevated: theme('colors.graphite.800');
+  --text-primary: theme('colors.graphite.50');
+  --text-secondary: theme('colors.graphite.300');
+  --text-tertiary: theme('colors.graphite.500');
+  --border-subtle: theme('colors.graphite.800');
+  --border-strong: theme('colors.graphite.700');
+  --accent: theme('colors.coral.400');
+  --accent-hover: theme('colors.coral.300');
+}
+
+@layer base {
+  html, body {
+    @apply min-h-screen font-sans antialiased;
+    background-color: var(--bg-base);
+    color: var(--text-primary);
+  }
+  body {
+    font-feature-settings: 'cv11', 'ss01', 'ss03';
+  }
+  h1, h2, h3, h4 {
+    @apply font-display font-semibold tracking-tight;
+    color: var(--text-primary);
+  }
+  a {
+    color: var(--accent);
+  }
+  a:hover {
+    color: var(--accent-hover);
+  }
+}
+
+@layer components {
+  .btn {
+    @apply inline-flex items-center justify-center gap-2 rounded px-4 py-2.5
+           font-medium transition-colors focus-visible:outline-none
+           focus-visible:ring-2 focus-visible:ring-coral-300 disabled:opacity-50
+           disabled:cursor-not-allowed;
+  }
+  .btn-primary {
+    @apply btn bg-coral-500 text-white hover:bg-coral-600 active:bg-coral-700;
+  }
+  .btn-secondary {
+    @apply btn border border-graphite-200 bg-graphite-0 text-graphite-900
+           hover:bg-graphite-50;
+  }
+  .btn-ghost {
+    @apply btn text-graphite-700 hover:bg-graphite-100;
+  }
+  .input {
+    @apply block w-full rounded border border-graphite-200 bg-graphite-0 px-3 py-2.5
+           text-graphite-900 placeholder:text-graphite-400 shadow-sm
+           focus:border-coral-500 focus:ring-coral-500 sm:text-sm;
+  }
+  .label {
+    @apply mb-1.5 block text-sm font-medium text-graphite-700;
+  }
+  .form-error {
+    @apply mt-1.5 text-xs text-danger-500;
+  }
+  .surface {
+    @apply rounded-lg border border-graphite-200 bg-graphite-0 p-6 shadow-soft;
+  }
+}

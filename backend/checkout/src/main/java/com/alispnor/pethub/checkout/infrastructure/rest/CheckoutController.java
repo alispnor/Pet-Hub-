@@ -2,6 +2,8 @@ package com.alispnor.pethub.checkout.infrastructure.rest;
 
 import com.alispnor.pethub.checkout.application.dto.CheckoutPreviewRequest;
 import com.alispnor.pethub.checkout.application.dto.CheckoutPreviewResponse;
+import com.alispnor.pethub.checkout.application.dto.PlaceOrderRequest;
+import com.alispnor.pethub.checkout.application.dto.PlaceOrderResponse;
 import com.alispnor.pethub.checkout.application.usecase.CheckoutService;
 import com.alispnor.pethub.identity.infrastructure.security.CurrentUserProvider;
 import io.swagger.v3.oas.annotations.Operation;
@@ -27,5 +29,12 @@ public class CheckoutController {
     public CheckoutPreviewResponse preview(@Valid @RequestBody CheckoutPreviewRequest request) {
         var current = currentUserProvider.requireCurrent();
         return checkoutService.preview(current.id(), request);
+    }
+
+    @PostMapping("/place-order")
+    @Operation(summary = "Confirma o pedido, cobra via gateway e persiste a tentativa de pagamento")
+    public PlaceOrderResponse placeOrder(@Valid @RequestBody PlaceOrderRequest request) {
+        var current = currentUserProvider.requireCurrent();
+        return checkoutService.placeOrder(current.id(), request);
     }
 }

@@ -81,7 +81,9 @@ Status: ⬜ Pendente · 🚧 Em andamento · ✅ Concluída
 
 ---
 
-## Fase 3 — Carrinho, Frete, Checkout e Pagamento · ⬜
+## Fase 3 — Carrinho, Frete, Checkout e Pagamento · ✅
+
+> **Entregue em 2026-05-14.** 6 commits (payment gateway extraído + cart Redis 30d + pricing com cupons/promoções/impostos + shipping com 3 calculadoras e cache Redis 1h + checkout preview orquestrando tudo + place-order com idempotência). Mock PaymentGateway aprova ~90%, persiste `TentativaPagamento` (V13) com `idempotency_key UNIQUE`, limpa o carrinho ao APROVAR. Smoke E2E verde com cupom 10OFF, cupom EXPIRED → 422, place-order idempotente devolvendo a mesma tentativa em chamadas repetidas. Pedido completo + máquina de estados ficam para a Fase 4. Detalhes em [`ai-memory/roadmap/fase-3-pendencias.md`](./ai-memory/roadmap/fase-3-pendencias.md).
 
 **Objetivo:** Fluxo completo de compra — a fase mais crítica do e-commerce.
 

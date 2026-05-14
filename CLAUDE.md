@@ -47,6 +47,24 @@ Apply without asking — these are invariants for the project:
 
 Full rationale in `~/.claude/projects/-home-ali-projects-pet-hub/memory/feedback_coding_patterns.md`.
 
+## AppSec — Security by Design (MANDATÓRIO)
+
+Toda geração e revisão de código neste repositório segue [`ai-memory/architecture/appsec-guidelines.md`](./ai-memory/architecture/appsec-guidelines.md). Não é opcional. Resumo do que isso implica para qualquer resposta com código:
+
+- Validação estrita de input em todo endpoint (Bean Validation no DTO, nada de `Map<String,Object>` em body).
+- Ownership check explícito em rotas `/me/*` ou que operam recurso de usuário (BOLA — API1:2023). Padrão: helper `loadOwnedXxx(usuarioId, id)` no service, `ForbiddenException` se mismatch.
+- DTO de saída nunca expõe campos sensíveis da entidade (BOPLA — API3:2023). MapStruct seleciona explicitamente.
+- JWT valida `iss`, `aud`, `exp`, assinatura com algoritmo fixo. Senhas com bcrypt cost ≥ 12.
+- Sem SQL concatenado (só JPA/Query Methods/parâmetros bindados). Sem URL controlada por usuário em request server-side sem validador anti-SSRF.
+- Criptografia AES-GCM via `AesGcmCipher` para PII. Cartões só com token + brand + últimos 4 (nunca PAN/CVV).
+- Logs sem PII/token/PAN; stack trace nunca vai no response.
+- Idempotência obrigatória em endpoints que cobram dinheiro ou disparam efeito externo.
+- CORS sem `*` em prod, headers de segurança (HSTS, CSP) servidos pelo nginx.
+
+Toda resposta que gerar código termina com a seção **`🛡️ OWASP & Security Checkpoint`** listando vulnerabilidades OWASP mitigadas + premissas de infra/env. O formato canônico está na seção 4 do `appsec-guidelines.md`.
+
+Achados em código já mergeado (Fases 0–3) estão catalogados em [`ai-memory/roadmap/appsec-pendencias.md`](./ai-memory/roadmap/appsec-pendencias.md) com marco de quando deixar de ser opcional. Não reabrir esses achados retroativamente — endereçar quando o módulo correspondente for tocado de novo.
+
 ## Project Knowledge Base — `ai-memory/`
 
 Long-form project context (architectural decisions, domain notes, integration specs, roadmap details) lives in `ai-memory/` at the repo root, organized into `decisions/`, `domain/`, `architecture/`, `integrations/`, `roadmap/`, `notes/`. See `ai-memory/README.md` for the convention.

@@ -22,7 +22,13 @@ export const routes: Routes = [
       },
       {
         path: 'produtos',
-        loadComponent: () => import('./features/home/home.page').then((m) => m.HomePage),
+        loadComponent: () =>
+          import('./features/catalog/product-list.page').then((m) => m.ProductListPage),
+      },
+      {
+        path: 'produtos/:sku',
+        loadComponent: () =>
+          import('./features/catalog/product-detail.page').then((m) => m.ProductDetailPage),
       },
       {
         path: 'minha-conta',

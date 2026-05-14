@@ -64,6 +64,11 @@ public class SecurityConfig {
                                 "/api/v1/auth/refresh",
                                 "/api/v1/auth/logout").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/v1/catalog/**").permitAll()
+                        // Cálculo de frete público (CEP + itens) — necessário na página
+                        // de detalhe de produto para usuários anônimos. Risco de abuso
+                        // mitigado por cache Redis 1h por (CEP+itens). Rate limit
+                        // específico fica como dívida (RL-1 em appsec-pendencias.md).
+                        .requestMatchers(HttpMethod.POST, "/api/v1/shipping/calculate").permitAll()
                         .requestMatchers(
                                 "/swagger-ui.html",
                                 "/swagger-ui/**",

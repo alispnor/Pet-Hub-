@@ -7,6 +7,7 @@ import java.math.BigDecimal;
 public record PlaceOrderResponse(
         Long tentativaPagamentoId,
         String referenciaPedido,
+        Long pedidoId,
         PaymentGateway.Method metodo,
         PaymentGateway.Status status,
         BigDecimal valorTotal,

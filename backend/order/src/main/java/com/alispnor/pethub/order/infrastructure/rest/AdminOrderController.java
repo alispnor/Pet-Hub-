@@ -62,8 +62,9 @@ public class AdminOrderController {
     public PedidoResponse transicionar(@PathVariable String numeroPedido,
                                        @Valid @RequestBody TransicaoRequest req) {
         var current = currentUserProvider.requireCurrent();
-        var pedido = orderService.transicionarByNumero(numeroPedido, req.paraStatus(), AtorTipo.ADMIN,
+        orderService.transicionarByNumero(numeroPedido, req.paraStatus(), AtorTipo.ADMIN,
                 current.id(), req.observacao());
-        return orderService.toResponse(pedido);
+        // Recarrega dentro de transação para evitar LazyInitializationException nos itens
+        return orderService.detalheAdmin(numeroPedido);
     }
 }

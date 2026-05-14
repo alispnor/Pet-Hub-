@@ -13,23 +13,59 @@ import java.util.UUID;
 import java.util.concurrent.ThreadLocalRandom;
 
 /**
- * Implementação de desenvolvimento do {@link PaymentGateway}. Aprova ~90% dos
- * charges para exercitar o caminho feliz e rejeita ~10% para validar o tratamento
- * de erros pelo checkout. Em produção será substituído por
- * `MercadoPagoSandboxGateway` (Fase 3+) e pelo gateway real (Fase 11+).
+ * Implementação de desenvolvimento do {@link PaymentGateway}.
+ *
+ * <p>Suporta dois modos via {@code payment.mock.mode}:
+ * <ul>
+ *   <li><b>deterministic</b> (default): aprova/rejeita por convenção de teste.
+ *       Cartões com últimos 4 iguais a {@code 4000} rejeitam; quaisquer outros
+ *       aprovam; PIX e BOLETO sempre aprovam. Bom para smoke E2E previsível
+ *       e demo do storefront.</li>
+ *   <li><b>probabilistic</b>: aprova ~{@code payment.mock.approval-rate} (default 0.9).
+ *       Útil para exercitar tratamento de erro com chaos aleatório.</li>
+ * </ul>
+ * Em produção será substituído por {@code MercadoPagoSandboxGateway} (Fase 7+).
+ *
+ * <p>O token de tokenização carrega os últimos 4 dígitos em texto (formato
+ * {@code tok_mock_<last4>_<uuid>}) — isso é necessário porque o charge ocorre
+ * sem acesso ao PAN. Os últimos 4 já são considerados não-sensíveis pelo PCI-DSS
+ * 3.4 e armazenamos em {@code formas_pagamento.ultimos_quatro_digitos}.
  */
 @Slf4j
 @Component
 @ConditionalOnProperty(prefix = "payment", name = "gateway", havingValue = "mock", matchIfMissing = true)
 public class MockPaymentGateway implements PaymentGateway {
 
+    public enum Mode {
+        DETERMINISTIC,
+        PROBABILISTIC
+    }
+
+    private final Mode mode;
     private final double approvalRate;
 
-    public MockPaymentGateway(@Value("${payment.mock.approval-rate:0.9}") double approvalRate) {
+    public MockPaymentGateway(
+            @Value("${payment.mock.mode:deterministic}") String modeRaw,
+            @Value("${payment.mock.approval-rate:0.9}") double approvalRate
+    ) {
+        this.mode = parseMode(modeRaw);
         if (approvalRate < 0.0 || approvalRate > 1.0) {
             throw new IllegalArgumentException("payment.mock.approval-rate fora de [0,1]: " + approvalRate);
         }
         this.approvalRate = approvalRate;
+        log.info("MockPaymentGateway init — mode={}, approvalRate={}", mode, approvalRate);
+    }
+
+    private static Mode parseMode(String raw) {
+        if (raw == null || raw.isBlank()) {
+            return Mode.DETERMINISTIC;
+        }
+        try {
+            return Mode.valueOf(raw.trim().toUpperCase());
+        } catch (IllegalArgumentException e) {
+            throw new IllegalArgumentException(
+                    "payment.mock.mode inválido: " + raw + ". Valores aceitos: deterministic, probabilistic");
+        }
     }
 
     // ============================= TOKENIZE =============================
@@ -64,7 +100,9 @@ public class MockPaymentGateway implements PaymentGateway {
 
         var brand = detectarBrand(numero);
         var ultimos = numero.substring(numero.length() - 4);
-        var token = "tok_mock_" + UUID.randomUUID();
+        // Tokens carregam os últimos 4 (não sensíveis pelo PCI-DSS 3.4) para que
+        // o charge consiga decidir aprovação determinística sem reler o PAN.
+        var token = "tok_mock_" + ultimos + "_" + UUID.randomUUID();
 
         log.info("Cartão tokenizado: brand={}, ultimos={}, token={}", brand, ultimos, token);
         return new TokenizationResult(token, brand, ultimos);
@@ -87,8 +125,6 @@ public class MockPaymentGateway implements PaymentGateway {
         }
 
         var transactionId = "txn_mock_" + UUID.randomUUID();
-        var rng = ThreadLocalRandom.current().nextDouble();
-        var approved = rng < approvalRate;
 
         String qrCode = null;
         String boletoUrl = null;
@@ -98,13 +134,52 @@ public class MockPaymentGateway implements PaymentGateway {
             boletoUrl = "https://pethub.com/files/boletos/" + transactionId + ".pdf";
         }
 
-        var status = approved ? Status.APPROVED : Status.REJECTED;
-        var raw = "{\"transactionId\":\"" + transactionId + "\",\"status\":\"" + status
-                + "\",\"rng\":" + rng + ",\"threshold\":" + approvalRate + "}";
+        Status status;
+        String motivo;
+        if (mode == Mode.PROBABILISTIC) {
+            var rng = ThreadLocalRandom.current().nextDouble();
+            var approved = rng < approvalRate;
+            status = approved ? Status.APPROVED : Status.REJECTED;
+            motivo = "rng=" + rng + ",threshold=" + approvalRate;
+        } else {
+            // Determinístico: cartão com últimos 4 == 4000 rejeita. Demais aprovam.
+            if ((request.method() == Method.CARTAO_CREDITO || request.method() == Method.CARTAO_DEBITO)
+                    && extrairUltimos4(request.gatewayToken()).map("4000"::equals).orElse(false)) {
+                status = Status.REJECTED;
+                motivo = "deterministic:last4=4000";
+            } else {
+                status = Status.APPROVED;
+                motivo = "deterministic";
+            }
+        }
 
-        log.info("Charge exit — txn={}, status={} (rng={}, threshold={})",
-                transactionId, status, rng, approvalRate);
+        var raw = "{\"transactionId\":\"" + transactionId + "\",\"status\":\"" + status
+                + "\",\"mode\":\"" + mode + "\",\"motivo\":\"" + motivo + "\"}";
+
+        log.info("Charge exit — txn={}, status={}, mode={}, motivo={}",
+                transactionId, status, mode, motivo);
         return new PaymentResult(transactionId, status, request.method(), request.valor(), qrCode, boletoUrl, raw);
+    }
+
+    /**
+     * Token gerado pela tokenização tem formato {@code tok_mock_<last4>_<uuid>}.
+     * Extrai os últimos 4 quando possível; tokens antigos (sem o slot) caem no
+     * {@link java.util.Optional#empty()}.
+     */
+    private java.util.Optional<String> extrairUltimos4(String token) {
+        if (token == null) {
+            return java.util.Optional.empty();
+        }
+        var parts = token.split("_");
+        // tok_mock_<last4>_<uuid>  → 4 partes mínimas
+        if (parts.length < 4 || !"tok".equals(parts[0]) || !"mock".equals(parts[1])) {
+            return java.util.Optional.empty();
+        }
+        var candidato = parts[2];
+        if (candidato.length() == 4 && candidato.chars().allMatch(Character::isDigit)) {
+            return java.util.Optional.of(candidato);
+        }
+        return java.util.Optional.empty();
     }
 
     @Override

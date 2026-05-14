@@ -63,7 +63,7 @@ public class OrderController {
     @Operation(summary = "Cliente cancela o próprio pedido (apenas enquanto PENDENTE_PAGAMENTO)")
     public PedidoResponse cancelar(@PathVariable String numeroPedido) {
         var current = currentUserProvider.requireCurrent();
-        var pedido = orderService.cancelarPeloCliente(numeroPedido, current.id());
-        return orderService.toResponse(pedido);
+        orderService.cancelarPeloCliente(numeroPedido, current.id());
+        return orderService.detalheCliente(numeroPedido, current.id());
     }
 }

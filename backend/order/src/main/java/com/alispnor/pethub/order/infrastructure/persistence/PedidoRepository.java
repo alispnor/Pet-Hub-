@@ -36,7 +36,8 @@ public interface PedidoRepository extends JpaRepository<Pedido, Long> {
     @Query("""
         select p from Pedido p
         where (:status is null or p.status = :status)
-          and (:q is null or lower(p.numeroPedido) like lower(concat('%', :q, '%')))
+          and (cast(:q as string) is null
+               or lower(p.numeroPedido) like lower(concat('%', cast(:q as string), '%')))
         """)
     Page<Pedido> searchAdmin(
             @Param("status") StatusPedido status,

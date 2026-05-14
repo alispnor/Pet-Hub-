@@ -43,6 +43,14 @@
             <groupId>com.alispnor.pethub</groupId>
             <artifactId>pet-hub-payment</artifactId>
         </dependency>
+        <dependency>
+            <groupId>com.alispnor.pethub</groupId>
+            <artifactId>pet-hub-inventory</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.alispnor.pethub</groupId>
+            <artifactId>pet-hub-order</artifactId>
+        </dependency>
 
         <dependency>
             <groupId>org.springframework.boot</groupId>

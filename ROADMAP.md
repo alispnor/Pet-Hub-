@@ -104,7 +104,9 @@ Status: ⬜ Pendente · 🚧 Em andamento · ✅ Concluída
 
 ---
 
-## Fase 4 — Pedidos, Timeline, Estoque · ⬜
+## Fase 4 — Pedidos, Timeline, Estoque · ✅
+
+> **Entregue em 2026-05-14.** 2 commits: módulos `inventory` (Estoque + ReservaEstoque com TTL 15min + MovimentacaoEstoque + @Scheduled de expiração) e `order` (Pedido + PedidoItem + PedidoEvento + OrderStateMachine + OrderNumberGenerator `PH-YYYY-NNNNNN` + TimelineService). Checkout refatorado para reservar estoque antes da cobrança, materializar Pedido (PENDENTE_PAGAMENTO), cobrar, e transicionar (APROVADO/REJEITADO) — hooks do state machine confirmam/liberam reservas. MockPaymentGateway ganhou modo determinístico (last4=4000 rejeita). Smoke E2E verde: pedido PH-2026-000001 com estoque 50→48, timeline com 5 etapas + tempo decorrido, admin list/stats/transition operacionais. Detalhes em [`ai-memory/roadmap/fase-4-pendencias.md`](./ai-memory/roadmap/fase-4-pendencias.md).
 
 **Objetivo:** Materialização de pedidos com máquina de estados e gestão de estoque com reservas.
 

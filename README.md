@@ -41,6 +41,14 @@ Faz parte do **Ali's Pet Ecosystem** junto com o [Pet Diary](#) (prontuário dig
 - Deploy em cloud pública (AWS/Oracle)
 - Observabilidade com Prometheus + Grafana + Loki
 
+## 🎨 Design System
+
+**MANDATORY:** All UI work in this project MUST follow [`ai-memory/design-system.md`](./ai-memory/design-system.md).
+Before generating any component, screen, or style:
+1. Read `ai-memory/design-system.md` in full
+2. Use only tokens defined there (colors, spacing, typography)
+3. Reject any UI suggestion that violates the anti-patterns (section 14)
+
 ## 🛠️ Tech Stack
 
 **Backend:** Java 21 · Spring Boot 3 · PostgreSQL · Kafka · RabbitMQ · Redis

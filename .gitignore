@@ -100,3 +100,6 @@ test-results/
 # Uploads locais (fotos de pet etc.)
 var/
 backend/var/
+
+# ─── Claude Code (config local / artefatos de execução) ────────
+.claude/

@@ -5,6 +5,7 @@ import { Router, RouterLink } from '@angular/router';
 import { HttpErrorResponse } from '@angular/common/http';
 
 import { AuthService } from '@core/services/auth.service';
+import { PasswordInputComponent } from '@shared/components/password-input/password-input.component';
 
 /**
  * Validação client-side de senha: 8+ chars, ao menos 1 letra maiúscula,
@@ -25,8 +26,9 @@ function validadorSenhaForte(controle: AbstractControl): ValidationErrors | null
 @Component({
   selector: 'app-register-page',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, RouterLink],
+  imports: [CommonModule, ReactiveFormsModule, RouterLink, PasswordInputComponent],
   templateUrl: './register.page.html',
+  styleUrls: ['./register.page.scss'],
 })
 export class RegisterPage {
   private readonly authService = inject(AuthService);

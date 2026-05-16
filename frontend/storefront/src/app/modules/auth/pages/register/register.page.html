@@ -40,10 +40,11 @@
 
       <div>
         <label class="label" for="senha">Senha</label>
-        <input id="senha" type="password" autocomplete="new-password"
-               class="input"
-               formControlName="senha"
-               placeholder="Mínimo 8 caracteres" />
+        <app-password-input formControlName="senha"
+                            inputId="senha"
+                            autocomplete="new-password"
+                            placeholder="Mínimo 8 caracteres"
+                            [invalido]="form.controls.senha.touched && form.controls.senha.invalid" />
         <p *ngIf="form.controls.senha.touched && form.controls.senha.errors?.['required']"
            class="form-error">A senha é obrigatória.</p>
         <p *ngIf="form.controls.senha.touched && form.controls.senha.errors?.['minlength']"

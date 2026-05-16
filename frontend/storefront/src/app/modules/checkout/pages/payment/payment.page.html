@@ -1,0 +1,138 @@
+<section class="mx-auto max-w-page px-6 py-12">
+  <app-stepper [steps]="passosCheckout" [active]="3" />
+  <h1 class="mt-8 text-2xl text-graphite-900">Pagamento</h1>
+
+  <div class="mt-6 flex gap-2 border-b border-graphite-200">
+    <button *ngFor="let aba of abasPagamento"
+            type="button"
+            class="px-4 py-2 text-sm"
+            [class.text-coral-500]="abaAtiva() === aba.valor"
+            [class.font-medium]="abaAtiva() === aba.valor"
+            [class.border-b-2]="abaAtiva() === aba.valor"
+            [class.border-coral-500]="abaAtiva() === aba.valor"
+            [class.text-graphite-500]="abaAtiva() !== aba.valor"
+            (click)="trocarAba(aba.valor)">
+      {{ aba.label }}
+    </button>
+  </div>
+
+  <!-- Aba CARTAO -->
+  <div *ngIf="abaAtiva() === 'CARTAO'" class="mt-6 space-y-6">
+    <div *ngIf="cartoesSalvos().length" class="space-y-3">
+      <label *ngFor="let cartaoSalvo of cartoesSalvos()" class="block">
+        <input type="radio" name="cartaoSalvo" class="peer sr-only"
+               [value]="cartaoSalvo.id"
+               [checked]="cartaoSelecionadoId() === cartaoSalvo.id"
+               (change)="selecionarCartao(cartaoSalvo.id)" />
+        <div class="radio-card">
+          <div class="flex justify-between">
+            <p class="font-medium text-graphite-900">
+              {{ cartaoSalvo.bandeira }} ···· {{ cartaoSalvo.ultimosQuatroDigitos }}
+              <span *ngIf="cartaoSalvo.padrao" class="ml-2 text-xs text-coral-500">padrão</span>
+            </p>
+            <p class="text-xs text-graphite-500">
+              Válido até {{ cartaoSalvo.validadeMes }}/{{ cartaoSalvo.validadeAno }}
+            </p>
+          </div>
+          <p class="mt-1 text-sm text-graphite-700">{{ cartaoSalvo.nomeImpresso }}</p>
+        </div>
+      </label>
+    </div>
+
+    <div *ngIf="cartaoSelecionadoId()" class="surface space-y-3">
+      <label class="label" for="quantidadeParcelas">Parcelas</label>
+      <select id="quantidadeParcelas" class="input"
+              [value]="quantidadeParcelas()"
+              (change)="atualizarParcelas($any($event.target).value)">
+        <option *ngFor="let opcaoParcelas of OPCOES_PARCELAS" [value]="opcaoParcelas">{{ opcaoParcelas }}x sem juros</option>
+      </select>
+    </div>
+
+    <button *ngIf="cartoesSalvos().length && !mostrandoFormularioCartao()"
+            type="button"
+            class="btn-ghost"
+            (click)="mostrandoFormularioCartao.set(true)">
+      + Adicionar novo cartão
+    </button>
+
+    <form *ngIf="mostrandoFormularioCartao() || cartoesSalvos().length === 0"
+          [formGroup]="formularioCartao" (ngSubmit)="tokenizarECadastrarCartao()"
+          class="surface space-y-4" autocomplete="on">
+      <h2 class="text-base text-graphite-900">Novo cartão</h2>
+      <div class="grid grid-cols-1 gap-4 sm:grid-cols-3">
+        <div class="sm:col-span-3">
+          <label class="label" for="numeroCartao">Número</label>
+          <input id="numeroCartao" class="input"
+                 formControlName="numero"
+                 inputmode="numeric"
+                 autocomplete="cc-number"
+                 maxlength="19"
+                 placeholder="9999 9999 9999 9999" />
+          <p *ngIf="formularioCartao.controls.numero.touched && formularioCartao.controls.numero.invalid"
+             class="form-error">Número deve ter 13 a 19 dígitos.</p>
+        </div>
+        <div class="sm:col-span-3">
+          <label class="label" for="nomeImpresso">Nome impresso</label>
+          <input id="nomeImpresso" class="input"
+                 formControlName="nomeImpresso"
+                 autocomplete="cc-name" />
+        </div>
+        <div>
+          <label class="label" for="validadeMes">Mês (MM)</label>
+          <input id="validadeMes" class="input"
+                 formControlName="validadeMes"
+                 inputmode="numeric" maxlength="2"
+                 autocomplete="cc-exp-month" />
+        </div>
+        <div>
+          <label class="label" for="validadeAno">Ano (AAAA)</label>
+          <input id="validadeAno" class="input"
+                 formControlName="validadeAno"
+                 inputmode="numeric" maxlength="4"
+                 autocomplete="cc-exp-year" />
+        </div>
+        <div>
+          <label class="label" for="cvv">CVV</label>
+          <input id="cvv" class="input"
+                 type="password"
+                 formControlName="cvv"
+                 inputmode="numeric" maxlength="4"
+                 autocomplete="cc-csc" />
+        </div>
+      </div>
+      <p *ngIf="erroCartao()" class="form-error">{{ erroCartao() }}</p>
+      <div class="flex gap-2">
+        <button type="submit" class="btn-primary" [disabled]="formularioCartao.invalid || tokenizandoCartao()">
+          <span *ngIf="!tokenizandoCartao()">Salvar cartão</span>
+          <span *ngIf="tokenizandoCartao()">Validando…</span>
+        </button>
+        <button *ngIf="cartoesSalvos().length"
+                type="button"
+                class="btn-ghost"
+                (click)="mostrandoFormularioCartao.set(false)">Cancelar</button>
+      </div>
+    </form>
+  </div>
+
+  <!-- Aba PIX -->
+  <div *ngIf="abaAtiva() === 'PIX'" class="mt-6 surface">
+    <p class="text-graphite-700">Você verá o QR Code após confirmar o pedido.</p>
+    <p class="mt-1 text-sm text-graphite-500">Aprovação imediata; o pedido entra em separação ao receber a confirmação.</p>
+  </div>
+
+  <!-- Aba BOLETO -->
+  <div *ngIf="abaAtiva() === 'BOLETO'" class="mt-6 surface">
+    <p class="text-graphite-700">O boleto será gerado e enviado por e-mail após confirmar o pedido.</p>
+    <p class="mt-1 text-sm text-graphite-500">Vencimento em 3 dias úteis.</p>
+  </div>
+
+  <div class="mt-8 flex justify-between">
+    <button class="btn-ghost" type="button" (click)="voltarParaFrete()">← Voltar para frete</button>
+    <button class="btn-primary"
+            type="button"
+            [disabled]="!podeProsseguir()"
+            (click)="prosseguirParaRevisao()">
+      Continuar para revisão
+    </button>
+  </div>
+</section>

@@ -54,6 +54,13 @@ export const routes: Routes = [
             .then((moduleShipping) => moduleShipping.CheckoutShippingPage),
       },
       {
+        path: 'checkout/pagamento',
+        canActivate: [authGuard, checkoutStepGuard(['opcaoFreteCodigo'])],
+        loadComponent: () =>
+          import('@modules/checkout/pages/payment/payment.page')
+            .then((modulePayment) => modulePayment.CheckoutPaymentPage),
+      },
+      {
         path: 'minha-conta',
         canActivate: [authGuard],
         loadComponent: () =>

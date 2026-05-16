@@ -115,17 +115,26 @@ O Spring Boot leva ~15-30s pra subir na 1ª execução (download de deps). Acomp
 ```bash
 cd frontend/storefront
 npm install   # primeira vez apenas
-npx ng serve --host 127.0.0.1 --port 4242 --proxy-config proxy.conf.json
+npm start     # roda ng serve com host 127.0.0.1, port 4242 e proxy /api → :8080
 ```
 
 Storefront em http://127.0.0.1:4242 (o proxy encaminha `/api/*` pra `http://localhost:8080`).
 
 ### Credenciais seed (dev)
 
-| Tipo | Email | Senha |
-|---|---|---|
-| Cliente | `maria.fase2@pethub.com` | `Senha@123` |
-| Admin | `admin@pethub.com` | `Admin@123` |
+Cobertura completa da matriz RBAC para smoke E2E manual e validação de permissões. Todas as senhas seguem o padrão "Tipo + @ + 123".
+
+| Perfil | Email | Senha | Role |
+|---|---|---|---|
+| Admin Loja | `admin@pethub.com` | `Admin@123` | `ROLE_ADMIN_LOJA` |
+| Gerente | `gerente@pethub.com` | `Gerente@123` | `ROLE_GERENTE` |
+| Operador | `operador@pethub.com` | `Operador@123` | `ROLE_OPERADOR` |
+| Cliente — Maria (Fase 2 seed) | `maria.fase2@pethub.com` | `Senha@123` | `ROLE_CLIENTE` |
+| Cliente — Bruno (Fase 2 seed) | `bruno.fase2@pethub.com` | `Senha@123` | `ROLE_CLIENTE` |
+| Cliente — Cliente Teste | `cliente@teste.com` | `Senha@123` | `ROLE_CLIENTE` |
+| Cliente — João | `joao.teste@pethub.com` | `Teste@123` | `ROLE_CLIENTE` |
+
+Os admins de teste (Gerente, Operador) e o cliente João vêm da migration `V16__test_users_extra.sql` — idempotente, então `docker compose down -v && up` os recria automaticamente. Novos cadastros podem ser feitos pelo `/cadastro` no storefront (só clientes) ou pelo `POST /api/v1/auth/register/cliente` no Swagger.
 
 No Swagger, clicar em **Authorize** (canto superior direito) e colar o `accessToken` retornado por `POST /auth/login` (sem prefixo `Bearer`).
 

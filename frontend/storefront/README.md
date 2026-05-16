@@ -21,8 +21,10 @@ SPA do cliente do Pet Hub: catálogo, carrinho, checkout, minha conta. Veja o RE
 npm install
 
 # Subir o dev server na porta 4242 com proxy para o backend:
-npx ng serve --host 127.0.0.1 --port 4242 --proxy-config proxy.conf.json
+npm start
 ```
+
+O script `npm start` é equivalente a `ng serve --host 127.0.0.1 --port 4242 --proxy-config proxy.conf.json` — porta 4242 alinha com `CORS_ALLOWED_ORIGINS` no `.env.local` da raiz.
 
 App em http://127.0.0.1:4242 — auto-reload a cada save.
 
@@ -32,12 +34,14 @@ O `CORS_ALLOWED_ORIGINS` no `.env.local` da raiz já libera `http://127.0.0.1:42
 
 ## Credenciais seed (ambiente dev)
 
-| Tipo | Email | Senha |
-|---|---|---|
-| Cliente | `maria.fase2@pethub.com` | `Senha@123` |
-| Admin | `admin@pethub.com` | `Admin@123` |
+Matriz completa em [`../../README.md`](../../README.md) (Admin Loja / Gerente / Operador / 4 clientes). Atalhos para uso no storefront:
 
-> O storefront é a SPA do **cliente**. Login com conta admin funciona, mas não há telas administrativas aqui — admin SPA é entregue na Fase 6.
+| Quando | Email | Senha |
+|---|---|---|
+| Smoke "cliente padrão" | `maria.fase2@pethub.com` | `Senha@123` |
+| Smoke "novo cliente fresh" | `joao.teste@pethub.com` | `Teste@123` |
+
+> O storefront é a SPA do **cliente**. Login com conta admin/gerente/operador funciona (retorna `accessToken` válido), mas não há telas administrativas aqui — admin SPA é entregue na Fase 6.
 
 ## Arquitetura
 

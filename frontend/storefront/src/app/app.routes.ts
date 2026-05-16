@@ -34,6 +34,11 @@ export const routes: Routes = [
           import('@modules/catalog/pages/product-detail/product-detail.page').then((moduleProductDetail) => moduleProductDetail.ProductDetailPage),
       },
       {
+        path: 'carrinho',
+        loadComponent: () =>
+          import('@modules/cart/pages/cart/cart.page').then((moduleCart) => moduleCart.CartPage),
+      },
+      {
         path: 'minha-conta',
         canActivate: [authGuard],
         loadComponent: () =>

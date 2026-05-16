@@ -7,6 +7,15 @@
       <nav class="flex items-center gap-6 text-sm">
         <a routerLink="/produtos" routerLinkActive="text-coral-500"
            class="text-graphite-700 hover:text-graphite-900">Catálogo</a>
+        <a *ngIf="usuarioLogado()" routerLink="/carrinho" routerLinkActive="text-coral-500"
+           class="relative text-graphite-700 hover:text-graphite-900">
+          Carrinho
+          <span *ngIf="quantidadeItensCarrinho() > 0"
+                class="absolute -right-3 -top-2 inline-flex h-4 min-w-[1rem] items-center
+                       justify-center rounded-full bg-coral-500 px-1 text-[10px] font-medium text-white">
+            {{ quantidadeItensCarrinho() }}
+          </span>
+        </a>
         <ng-container *ngIf="usuarioLogado(); else navDeslogado">
           <a routerLink="/minha-conta" routerLinkActive="text-coral-500"
              class="text-graphite-700 hover:text-graphite-900">

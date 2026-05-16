@@ -1,0 +1,64 @@
+<section class="mx-auto max-w-page px-6 py-12">
+  <h1 class="text-3xl text-graphite-900">Carrinho</h1>
+
+  <ng-container *ngIf="authService.isAuthenticated(); else painelDeslogado">
+    <ng-container *ngIf="cartService.cart() as carrinhoAtual">
+      <div *ngIf="carrinhoAtual.items.length; else carrinhoVazio"
+           class="mt-8 grid gap-12 lg:grid-cols-[1fr_360px]">
+        <div>
+          <app-cart-item-row *ngFor="let itemCarrinho of carrinhoAtual.items"
+                             [item]="itemCarrinho"
+                             [busy]="skuOcupado() === itemCarrinho.sku"
+                             (updateQty)="atualizarQty($event.sku, $event.qty)"
+                             (remove)="removerItem($event)" />
+          <p *ngIf="erroLista()" class="form-error mt-3">{{ erroLista() }}</p>
+        </div>
+
+        <aside class="space-y-6">
+          <div class="surface space-y-4">
+            <h2 class="text-lg text-graphite-900">Resumo</h2>
+            <div class="flex justify-between text-sm">
+              <span class="text-graphite-500">Itens ({{ carrinhoAtual.totalItens }})</span>
+              <span>{{ carrinhoAtual.subtotal | currency:'BRL':'symbol':'1.2-2':'pt-BR' }}</span>
+            </div>
+            <p class="text-xs text-graphite-500">Frete calculado no checkout.</p>
+            <button class="btn-primary w-full"
+                    type="button"
+                    [disabled]="skuOcupado() !== null"
+                    (click)="irParaCheckout()">
+              Finalizar compra
+            </button>
+          </div>
+
+          <div class="surface">
+            <app-coupon-input [cupom]="carrinhoAtual.cupom"
+                              [busy]="cupomEmProcessamento()"
+                              [error]="erroCupom()"
+                              (apply)="aplicarCupom($event)"
+                              (remove)="removerCupom()" />
+          </div>
+
+          <div class="surface">
+            <p class="label mb-2">Estimativa de frete</p>
+            <app-shipping-calculator [sku]="carrinhoAtual.items[0].sku"
+                                     [qty]="carrinhoAtual.items[0].qty" />
+          </div>
+        </aside>
+      </div>
+    </ng-container>
+
+    <ng-template #carrinhoVazio>
+      <div class="mt-12 rounded-lg border border-graphite-200 bg-graphite-0 py-16 text-center">
+        <p class="text-graphite-600">Seu carrinho está vazio.</p>
+        <a routerLink="/produtos" class="btn-primary mt-4 inline-flex">Explorar produtos</a>
+      </div>
+    </ng-template>
+  </ng-container>
+
+  <ng-template #painelDeslogado>
+    <div class="mt-12 rounded-lg border border-graphite-200 bg-graphite-0 py-16 text-center">
+      <p class="text-graphite-600">Faça login para ver seu carrinho.</p>
+      <a routerLink="/login" class="btn-primary mt-4 inline-flex">Entrar</a>
+    </div>
+  </ng-template>
+</section>

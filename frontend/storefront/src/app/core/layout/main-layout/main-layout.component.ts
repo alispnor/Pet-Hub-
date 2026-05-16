@@ -3,18 +3,22 @@ import { RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
 import { CommonModule } from '@angular/common';
 
 import { AuthService } from '@core/services/auth.service';
+import { CartService } from '@modules/cart/services/cart.service';
 
 @Component({
   selector: 'app-main-layout',
   standalone: true,
   imports: [CommonModule, RouterOutlet, RouterLink, RouterLinkActive],
   templateUrl: './main-layout.component.html',
+  styleUrls: ['./main-layout.component.scss'],
 })
 export class MainLayoutComponent {
   private readonly authService = inject(AuthService);
+  private readonly cartService = inject(CartService);
 
   readonly usuarioLogado = this.authService.isAuthenticated;
   readonly nomeUsuario = computed(() => this.authService.currentUser()?.nome ?? '');
+  readonly quantidadeItensCarrinho = this.cartService.totalItens;
 
   sairDaConta(): void {
     this.authService.logout().subscribe();

@@ -1,5 +1,5 @@
-import { CartItem } from './cart';
-import { OpcaoFrete } from './shipping';
+import { CartItem } from '@modules/cart/models/cart';
+import { OpcaoFrete } from '@shared/models/shipping';
 
 /** Quebra de impostos retornada pelo backend (pricing/dto/ImpostosCalculados). */
 export interface ImpostosCalculados {

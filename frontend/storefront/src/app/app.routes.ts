@@ -2,6 +2,7 @@ import { Routes } from '@angular/router';
 
 import { MainLayoutComponent } from '@core/layout/main-layout/main-layout.component';
 import { authGuard } from '@core/guards/auth.guard';
+import { checkoutStepGuard } from '@modules/checkout/guards/checkout-step.guard';
 
 export const routes: Routes = [
   {
@@ -37,6 +38,13 @@ export const routes: Routes = [
         path: 'carrinho',
         loadComponent: () =>
           import('@modules/cart/pages/cart/cart.page').then((moduleCart) => moduleCart.CartPage),
+      },
+      {
+        path: 'checkout/endereco',
+        canActivate: [authGuard, checkoutStepGuard(['cart-not-empty'])],
+        loadComponent: () =>
+          import('@modules/checkout/pages/address/address.page')
+            .then((moduleAddress) => moduleAddress.CheckoutAddressPage),
       },
       {
         path: 'minha-conta',

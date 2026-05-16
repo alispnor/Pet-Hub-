@@ -1,0 +1,135 @@
+<section class="mx-auto max-w-page px-6 py-12">
+  <app-stepper [steps]="passosCheckout" [active]="1" />
+
+  <h1 class="mt-8 text-2xl text-graphite-900">Endereço de entrega</h1>
+
+  <div *ngIf="enderecosCadastrados().length" class="mt-6 space-y-3">
+    <label *ngFor="let enderecoCadastrado of enderecosCadastrados()" class="block">
+      <input type="radio" name="enderecoEntrega" class="peer sr-only"
+             [value]="enderecoCadastrado.id"
+             [checked]="enderecoEntregaId() === enderecoCadastrado.id"
+             (change)="selecionarEnderecoEntrega(enderecoCadastrado.id)" />
+      <div class="radio-card">
+        <div class="flex justify-between">
+          <p class="font-medium text-graphite-900">{{ enderecoCadastrado.apelido }}
+            <span *ngIf="enderecoCadastrado.padraoEntrega"
+                  class="ml-2 text-xs text-coral-500">padrão</span>
+          </p>
+          <p class="text-xs text-graphite-500">{{ enderecoCadastrado.tipo }}</p>
+        </div>
+        <p class="mt-1 text-sm text-graphite-700">
+          {{ enderecoCadastrado.logradouro }}<ng-container *ngIf="enderecoCadastrado.numero">, {{ enderecoCadastrado.numero }}</ng-container>
+          <ng-container *ngIf="enderecoCadastrado.complemento"> — {{ enderecoCadastrado.complemento }}</ng-container>
+        </p>
+        <p class="text-sm text-graphite-500">
+          {{ enderecoCadastrado.bairro }}, {{ enderecoCadastrado.cidade }}/{{ enderecoCadastrado.uf }} ·
+          {{ formatarCep(enderecoCadastrado.cep) }}
+        </p>
+      </div>
+    </label>
+  </div>
+
+  <button *ngIf="enderecosCadastrados().length && !mostrandoFormularioNovo()"
+          type="button"
+          class="btn-ghost mt-4"
+          (click)="mostrandoFormularioNovo.set(true)">
+    + Adicionar novo endereço
+  </button>
+
+  <form *ngIf="mostrandoFormularioNovo() || enderecosCadastrados().length === 0"
+        [formGroup]="formularioEndereco" (ngSubmit)="salvarNovoEndereco()"
+        class="mt-6 surface space-y-4">
+    <h2 class="text-base text-graphite-900">Novo endereço</h2>
+    <div class="grid grid-cols-1 gap-4 sm:grid-cols-3">
+      <div class="sm:col-span-1">
+        <label class="label" for="cep">CEP</label>
+        <input id="cep" class="input"
+               formControlName="cep"
+               inputmode="numeric" maxlength="9"
+               placeholder="00000-000"
+               (blur)="autopreencherViaCep()" />
+        <p *ngIf="erroCep()" class="form-error">{{ erroCep() }}</p>
+      </div>
+      <div class="sm:col-span-2">
+        <label class="label" for="apelido">Apelido</label>
+        <input id="apelido" class="input" formControlName="apelido"
+               placeholder="Casa, Trabalho..." />
+      </div>
+      <div class="sm:col-span-2">
+        <label class="label" for="logradouro">Logradouro</label>
+        <input id="logradouro" class="input" formControlName="logradouro" />
+      </div>
+      <div class="sm:col-span-1">
+        <label class="label" for="numero">Número</label>
+        <input id="numero" class="input" formControlName="numero" />
+      </div>
+      <div class="sm:col-span-3">
+        <label class="label" for="complemento">Complemento</label>
+        <input id="complemento" class="input" formControlName="complemento"
+               placeholder="Apto 12, Bloco B..." />
+      </div>
+      <div class="sm:col-span-1">
+        <label class="label" for="bairro">Bairro</label>
+        <input id="bairro" class="input" formControlName="bairro" />
+      </div>
+      <div class="sm:col-span-1">
+        <label class="label" for="cidade">Cidade</label>
+        <input id="cidade" class="input" formControlName="cidade" />
+      </div>
+      <div class="sm:col-span-1">
+        <label class="label" for="uf">UF</label>
+        <select id="uf" class="input" formControlName="uf">
+          <option *ngFor="let unidadeFederativa of LISTA_UFS" [value]="unidadeFederativa">{{ unidadeFederativa }}</option>
+        </select>
+      </div>
+      <div class="sm:col-span-1">
+        <label class="label" for="tipo">Tipo</label>
+        <select id="tipo" class="input" formControlName="tipo">
+          <option value="RESIDENCIAL">Residencial</option>
+          <option value="COMERCIAL">Comercial</option>
+        </select>
+      </div>
+    </div>
+    <p *ngIf="erroFormulario()" class="form-error">{{ erroFormulario() }}</p>
+    <div class="flex gap-2">
+      <button type="submit" class="btn-primary"
+              [disabled]="formularioEndereco.invalid || salvandoEndereco()">
+        <span *ngIf="!salvandoEndereco()">Salvar endereço</span>
+        <span *ngIf="salvandoEndereco()">Salvando…</span>
+      </button>
+      <button *ngIf="enderecosCadastrados().length"
+              type="button"
+              class="btn-ghost"
+              (click)="mostrandoFormularioNovo.set(false)">Cancelar</button>
+    </div>
+  </form>
+
+  <div class="mt-8 surface">
+    <label class="flex items-center gap-2">
+      <input type="checkbox"
+             [checked]="usarMesmoEnderecoCobranca()"
+             (change)="alternarMesmoEnderecoCobranca()" />
+      <span class="text-sm text-graphite-700">Usar mesmo endereço para cobrança</span>
+    </label>
+    <div *ngIf="!usarMesmoEnderecoCobranca()" class="mt-3 space-y-2">
+      <p class="label">Endereço de cobrança</p>
+      <label *ngFor="let enderecoCadastrado of enderecosCadastrados()" class="block">
+        <input type="radio" name="enderecoCobranca" class="peer sr-only"
+               [checked]="enderecoCobrancaId() === enderecoCadastrado.id"
+               (change)="selecionarEnderecoCobranca(enderecoCadastrado.id)" />
+        <div class="radio-card">
+          <p class="text-sm">{{ enderecoCadastrado.apelido }} — {{ enderecoCadastrado.cidade }}/{{ enderecoCadastrado.uf }}</p>
+        </div>
+      </label>
+    </div>
+  </div>
+
+  <div class="mt-8 flex justify-end">
+    <button class="btn-primary"
+            type="button"
+            [disabled]="!enderecoEntregaId() || !enderecoCobrancaId()"
+            (click)="prosseguirParaFrete()">
+      Continuar para frete
+    </button>
+  </div>
+</section>

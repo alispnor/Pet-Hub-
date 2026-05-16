@@ -9,18 +9,7 @@ import { CommonModule } from '@angular/common';
   selector: 'app-price-display',
   standalone: true,
   imports: [CommonModule],
-  template: `
-    <div class="space-y-0.5">
-      <p class="text-2xl text-graphite-900 font-semibold tracking-tight">
-        {{ valor() | currency:'BRL':'symbol':'1.2-2':'pt-BR' }}
-      </p>
-      <p *ngIf="parcelas() && parcelas()!.qtd > 1"
-         class="text-sm text-graphite-500">
-        em {{ parcelas()!.qtd }}x de
-        {{ parcelas()!.valor | currency:'BRL':'symbol':'1.2-2':'pt-BR' }} sem juros
-      </p>
-    </div>
-  `,
+  templateUrl: './price-display.component.html',
 })
 export class PriceDisplayComponent {
   valor = input.required<number>();
@@ -29,11 +18,16 @@ export class PriceDisplayComponent {
   /** Piso para começar a parcelar (sem juros). Default R$ 200. */
   minPraParcelar = input(200);
 
-  protected parcelas = computed(() => {
-    const v = this.valor();
-    if (v < this.minPraParcelar()) return null;
+  protected parcelamentoSugerido = computed(() => {
+    const valorAtual = this.valor();
+    if (valorAtual < this.minPraParcelar()) return null;
     // Heurística: 1x até R$200 / 3x até R$600 / 6x até R$1500 / 12x acima
-    const qtd = v < 600 ? 3 : v < 1500 ? 6 : Math.min(12, this.maxParcelas());
-    return { qtd, valor: Math.round((v / qtd) * 100) / 100 };
+    const quantidadeParcelas = valorAtual < 600
+      ? 3
+      : valorAtual < 1500
+        ? 6
+        : Math.min(12, this.maxParcelas());
+    const valorParcela = Math.round((valorAtual / quantidadeParcelas) * 100) / 100;
+    return { quantidadeParcelas, valorParcela };
   });
 }

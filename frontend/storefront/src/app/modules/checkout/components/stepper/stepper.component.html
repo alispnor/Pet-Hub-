@@ -1,0 +1,18 @@
+<ol class="stepper">
+  <li *ngFor="let step of steps(); let stepIndex = index"
+      class="flex flex-1 items-center gap-2">
+    <span class="stepper__dot"
+          [class.is-active]="stepIndex + 1 === active()"
+          [class.is-done]="stepIndex + 1 < active()">
+      <ng-container *ngIf="stepIndex + 1 < active(); else numeroDoPasso">✓</ng-container>
+      <ng-template #numeroDoPasso>{{ stepIndex + 1 }}</ng-template>
+    </span>
+    <span class="stepper__label"
+          [class.is-active]="stepIndex + 1 === active()">
+      {{ step.label }}
+    </span>
+    <span *ngIf="stepIndex + 1 < steps().length"
+          class="stepper__line"
+          [class.is-done]="stepIndex + 1 < active()"></span>
+  </li>
+</ol>

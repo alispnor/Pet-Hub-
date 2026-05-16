@@ -1,0 +1,71 @@
+<section class="mx-auto max-w-md px-6 py-16">
+  <div class="surface">
+    <h1 class="text-2xl">Criar sua conta</h1>
+    <p class="mt-2 text-sm text-graphite-600">
+      Em segundos você já pode pedir, salvar pets e acompanhar entregas.
+    </p>
+
+    <form class="mt-6 space-y-4" [formGroup]="form" (ngSubmit)="cadastrar()">
+      <div>
+        <label class="label" for="nome">Nome completo</label>
+        <input id="nome" type="text" autocomplete="name"
+               class="input"
+               formControlName="nome"
+               placeholder="Ex.: Ana Costa" />
+        <p *ngIf="form.controls.nome.touched && form.controls.nome.invalid"
+           class="form-error">
+          Nome deve ter entre 2 e 200 caracteres.
+        </p>
+      </div>
+
+      <div>
+        <label class="label" for="email">Email</label>
+        <input id="email" type="email" autocomplete="email"
+               class="input"
+               formControlName="email"
+               placeholder="voce@email.com" />
+        <p *ngIf="form.controls.email.touched && form.controls.email.invalid"
+           class="form-error">
+          Informe um email válido.
+        </p>
+      </div>
+
+      <div>
+        <label class="label" for="telefone">Telefone (opcional)</label>
+        <input id="telefone" type="tel" autocomplete="tel"
+               class="input"
+               formControlName="telefone"
+               placeholder="(11) 99999-0000" />
+      </div>
+
+      <div>
+        <label class="label" for="senha">Senha</label>
+        <input id="senha" type="password" autocomplete="new-password"
+               class="input"
+               formControlName="senha"
+               placeholder="Mínimo 8 caracteres" />
+        <p *ngIf="form.controls.senha.touched && form.controls.senha.errors?.['required']"
+           class="form-error">A senha é obrigatória.</p>
+        <p *ngIf="form.controls.senha.touched && form.controls.senha.errors?.['minlength']"
+           class="form-error">Mínimo 8 caracteres.</p>
+        <p *ngIf="form.controls.senha.touched && form.controls.senha.errors?.['senhaFraca']"
+           class="form-error">
+          Use ao menos uma letra maiúscula, um número e um caractere especial.
+        </p>
+      </div>
+
+      <p *ngIf="erroCadastro()" class="form-error">{{ erroCadastro() }}</p>
+
+      <button type="submit" class="btn-primary w-full"
+              [disabled]="form.invalid || loading()">
+        <span *ngIf="!loading()">Criar conta</span>
+        <span *ngIf="loading()">Criando…</span>
+      </button>
+    </form>
+
+    <p class="mt-6 text-sm text-graphite-600">
+      Já tem conta?
+      <a routerLink="/login" class="font-medium text-coral-500">Entrar</a>
+    </p>
+  </div>
+</section>

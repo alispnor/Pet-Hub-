@@ -4,7 +4,7 @@ import { Router } from '@angular/router';
 import { Observable, BehaviorSubject, catchError, filter, switchMap, take, throwError } from 'rxjs';
 
 import { AuthService } from '../services/auth.service';
-import { environment } from '../../../environments/environment';
+import { environment } from '@env/environment';
 
 /**
  * Interceptor único de auth:

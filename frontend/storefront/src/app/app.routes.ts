@@ -1,7 +1,7 @@
 import { Routes } from '@angular/router';
 
-import { MainLayoutComponent } from './shared/layout/main-layout.component';
-import { authGuard } from './core/guards/auth.guard';
+import { MainLayoutComponent } from '@core/layout/main-layout/main-layout.component';
+import { authGuard } from '@core/guards/auth.guard';
 
 export const routes: Routes = [
   {
@@ -10,30 +10,34 @@ export const routes: Routes = [
     children: [
       {
         path: '',
-        loadComponent: () => import('./features/home/home.page').then((m) => m.HomePage),
+        loadComponent: () =>
+          import('@modules/home/pages/home/home.page').then((moduleHome) => moduleHome.HomePage),
       },
       {
         path: 'login',
-        loadComponent: () => import('./features/auth/login.page').then((m) => m.LoginPage),
+        loadComponent: () =>
+          import('@modules/auth/pages/login/login.page').then((moduleLogin) => moduleLogin.LoginPage),
       },
       {
         path: 'cadastro',
-        loadComponent: () => import('./features/auth/register.page').then((m) => m.RegisterPage),
+        loadComponent: () =>
+          import('@modules/auth/pages/register/register.page').then((moduleRegister) => moduleRegister.RegisterPage),
       },
       {
         path: 'produtos',
         loadComponent: () =>
-          import('./features/catalog/product-list.page').then((m) => m.ProductListPage),
+          import('@modules/catalog/pages/product-list/product-list.page').then((moduleProductList) => moduleProductList.ProductListPage),
       },
       {
         path: 'produtos/:sku',
         loadComponent: () =>
-          import('./features/catalog/product-detail.page').then((m) => m.ProductDetailPage),
+          import('@modules/catalog/pages/product-detail/product-detail.page').then((moduleProductDetail) => moduleProductDetail.ProductDetailPage),
       },
       {
         path: 'minha-conta',
         canActivate: [authGuard],
-        loadComponent: () => import('./features/home/home.page').then((m) => m.HomePage),
+        loadComponent: () =>
+          import('@modules/home/pages/home/home.page').then((moduleHome) => moduleHome.HomePage),
       },
     ],
   },

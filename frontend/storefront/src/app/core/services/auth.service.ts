@@ -2,14 +2,14 @@ import { Injectable, computed, inject, signal } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable, of, tap, catchError, map, throwError } from 'rxjs';
 
-import { environment } from '../../../environments/environment';
+import { environment } from '@env/environment';
 import {
   AuthResponse,
   AuthenticatedUser,
   LoginRequest,
   RegisterClienteRequest,
   Role,
-} from '../models/user';
+} from '@shared/models/user';
 
 /**
  * AuthService — fonte da verdade da sessão no storefront.

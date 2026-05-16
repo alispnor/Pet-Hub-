@@ -2,46 +2,14 @@ import { Component, input } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
 
-import { ProdutoSummary } from '../../../core/models/catalog';
+import { ProdutoSummary } from '@modules/catalog/models/catalog';
 import { PriceDisplayComponent } from '../price-display/price-display.component';
 
 @Component({
   selector: 'app-product-card',
   standalone: true,
   imports: [CommonModule, RouterLink, PriceDisplayComponent],
-  template: `
-    <a [routerLink]="['/produtos', produto().sku]"
-       class="group block overflow-hidden rounded-lg border border-graphite-200
-              bg-graphite-0 transition-shadow hover:shadow-elev">
-      <div class="relative aspect-square overflow-hidden bg-graphite-100">
-        <img *ngIf="produto().imagemPrincipal; else placeholder"
-             [src]="produto().imagemPrincipal!"
-             [alt]="produto().nome"
-             loading="lazy"
-             class="h-full w-full object-cover transition-transform duration-300
-                    group-hover:scale-105" />
-        <ng-template #placeholder>
-          <div class="flex h-full w-full items-center justify-center text-graphite-400 text-sm">
-            sem imagem
-          </div>
-        </ng-template>
-        <span *ngIf="produto().destacado"
-              class="absolute left-3 top-3 inline-flex items-center rounded
-                     bg-coral-500 px-2 py-0.5 text-xs font-medium text-white">
-          Destaque
-        </span>
-      </div>
-      <div class="space-y-2 p-4">
-        <p class="text-xs uppercase tracking-wider text-graphite-500">
-          {{ produto().categoriaSlug }}
-        </p>
-        <h3 class="line-clamp-2 text-base font-medium text-graphite-900">
-          {{ produto().nome }}
-        </h3>
-        <app-price-display [valor]="produto().preco" />
-      </div>
-    </a>
-  `,
+  templateUrl: './product-card.component.html',
 })
 export class ProductCardComponent {
   produto = input.required<ProdutoSummary>();

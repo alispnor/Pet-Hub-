@@ -86,4 +86,47 @@
   .surface {
     @apply rounded-lg border border-graphite-200 bg-graphite-0 p-6 shadow-soft;
   }
+  /*
+   * Padrão de "radio card" usado nas listas de seleção do checkout
+   * (endereço, frete, pagamento) e em qualquer lista onde a escolha do
+   * cliente é representada por radios escondidos + um container clicável.
+   * Esperado: <input type="radio" class="peer sr-only" /> seguido por
+   * <div class="radio-card">...</div>
+   */
+  .radio-card {
+    @apply cursor-pointer rounded-lg border border-graphite-200 bg-graphite-0 p-4
+           transition-colors hover:border-graphite-300
+           peer-checked:border-coral-500 peer-checked:ring-1 peer-checked:ring-coral-500
+           peer-disabled:cursor-not-allowed peer-disabled:opacity-60;
+  }
+  /*
+   * Linha do stepper visual do checkout. Estados aplicados via classes utility
+   * para evitar lógica condicional repetida nos templates: o pai marca cada
+   * item como "is-done", "is-active" ou "is-future".
+   */
+  .stepper {
+    @apply flex w-full items-center gap-2 sm:gap-4;
+  }
+  .stepper__dot {
+    @apply flex h-7 w-7 flex-shrink-0 items-center justify-center rounded-full
+           text-xs font-semibold bg-graphite-200 text-graphite-500;
+  }
+  .stepper__dot.is-active {
+    @apply bg-coral-500 text-white;
+  }
+  .stepper__dot.is-done {
+    @apply bg-graphite-900 text-white;
+  }
+  .stepper__label {
+    @apply hidden text-xs text-graphite-500 sm:inline;
+  }
+  .stepper__label.is-active {
+    @apply text-graphite-900 font-medium;
+  }
+  .stepper__line {
+    @apply flex-1 h-px bg-graphite-200;
+  }
+  .stepper__line.is-done {
+    @apply bg-graphite-900;
+  }
 }

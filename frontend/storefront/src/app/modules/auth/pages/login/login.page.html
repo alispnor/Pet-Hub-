@@ -1,0 +1,46 @@
+<section class="mx-auto max-w-md px-6 py-16">
+  <div class="surface">
+    <h1 class="text-2xl">Entrar na sua conta</h1>
+    <p class="mt-2 text-sm text-graphite-600">
+      Acesse pedidos, endereços e pets cadastrados.
+    </p>
+
+    <form class="mt-6 space-y-4" [formGroup]="form" (ngSubmit)="entrar()">
+      <div>
+        <label class="label" for="email">Email</label>
+        <input id="email" type="email" autocomplete="email"
+               class="input"
+               formControlName="email"
+               placeholder="seu@email.com" />
+        <p *ngIf="form.controls.email.touched && form.controls.email.invalid"
+           class="form-error">
+          Informe um email válido.
+        </p>
+      </div>
+      <div>
+        <label class="label" for="senha">Senha</label>
+        <input id="senha" type="password" autocomplete="current-password"
+               class="input"
+               formControlName="senha"
+               placeholder="••••••••" />
+        <p *ngIf="form.controls.senha.touched && form.controls.senha.invalid"
+           class="form-error">
+          A senha deve ter no mínimo 8 caracteres.
+        </p>
+      </div>
+
+      <p *ngIf="erroLogin()" class="form-error">{{ erroLogin() }}</p>
+
+      <button type="submit" class="btn-primary w-full"
+              [disabled]="form.invalid || loading()">
+        <span *ngIf="!loading()">Entrar</span>
+        <span *ngIf="loading()">Entrando…</span>
+      </button>
+    </form>
+
+    <p class="mt-6 text-sm text-graphite-600">
+      Ainda não tem conta?
+      <a routerLink="/cadastro" class="font-medium text-coral-500">Criar conta</a>
+    </p>
+  </div>
+</section>

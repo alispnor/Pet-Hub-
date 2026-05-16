@@ -1,0 +1,34 @@
+<form [formGroup]="form" (ngSubmit)="calcularFrete()" class="space-y-3">
+  <label class="label" for="cep">Calcular frete</label>
+  <div class="flex gap-2">
+    <input id="cep" type="text"
+           class="input flex-1"
+           inputmode="numeric"
+           formControlName="cep"
+           placeholder="00000-000"
+           maxlength="9" />
+    <button type="submit"
+            class="btn-secondary"
+            [disabled]="form.invalid || loading()">
+      <span *ngIf="!loading()">Calcular</span>
+      <span *ngIf="loading()">…</span>
+    </button>
+  </div>
+  <p *ngIf="form.controls.cep.touched && form.controls.cep.invalid"
+     class="form-error">CEP deve ter 8 dígitos.</p>
+  <p *ngIf="error()" class="form-error">{{ error() }}</p>
+
+  <ul *ngIf="opcoesFrete().length" class="mt-4 divide-y divide-graphite-200 border-t border-graphite-200">
+    <li *ngFor="let opcaoFrete of opcoesFrete()" class="flex items-center justify-between py-3">
+      <div>
+        <p class="text-sm font-medium text-graphite-900">{{ opcaoFrete.servico }}</p>
+        <p class="text-xs text-graphite-500">
+          {{ opcaoFrete.transportadora }} · entrega em até {{ opcaoFrete.prazoDias }} dia(s) úteis
+        </p>
+      </div>
+      <p class="text-sm font-semibold text-graphite-900">
+        {{ opcaoFrete.valor | currency:'BRL':'symbol':'1.2-2':'pt-BR' }}
+      </p>
+    </li>
+  </ul>
+</form>

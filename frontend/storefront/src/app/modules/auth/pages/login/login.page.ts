@@ -5,12 +5,14 @@ import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { HttpErrorResponse } from '@angular/common/http';
 
 import { AuthService } from '@core/services/auth.service';
+import { PasswordInputComponent } from '@shared/components/password-input/password-input.component';
 
 @Component({
   selector: 'app-login-page',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, RouterLink],
+  imports: [CommonModule, ReactiveFormsModule, RouterLink, PasswordInputComponent],
   templateUrl: './login.page.html',
+  styleUrls: ['./login.page.scss'],
 })
 export class LoginPage {
   private readonly authService = inject(AuthService);
@@ -24,6 +26,7 @@ export class LoginPage {
   readonly form = this.formBuilder.nonNullable.group({
     email: ['', [Validators.required, Validators.email]],
     senha: ['', [Validators.required, Validators.minLength(8)]],
+    manterConectado: [false],
   });
 
   entrar(): void {

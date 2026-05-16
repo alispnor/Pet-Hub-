@@ -3,6 +3,7 @@ package com.alispnor.pethub.identity.application.usecase;
 import com.alispnor.pethub.common.exception.BusinessRuleException;
 import com.alispnor.pethub.common.exception.ConflictException;
 import com.alispnor.pethub.common.exception.ResourceNotFoundException;
+import com.alispnor.pethub.identity.application.dto.AuthEmissionResult;
 import com.alispnor.pethub.identity.application.dto.AuthResponse;
 import com.alispnor.pethub.identity.application.dto.LoginRequest;
 import com.alispnor.pethub.identity.application.dto.RegisterAdminRequest;
@@ -79,7 +80,7 @@ public class AuthService {
     }
 
     @Transactional
-    public AuthResponse login(LoginRequest request) {
+    public AuthEmissionResult login(LoginRequest request) {
         log.debug("Iniciando login para email={}", maskEmail(request.email()));
         var usuario = usuarioRepository.findByEmailIgnoreCase(request.email())
                 .orElseThrow(() -> new BadCredentialsException("Credenciais inválidas"));
@@ -96,13 +97,14 @@ public class AuthService {
         }
         usuario.registrarLoginSucesso();
         usuarioRepository.save(usuario);
-        var response = emitTokens(usuario);
-        log.debug("Login OK usuario id={}", usuario.getId());
-        return response;
+        var manterConectado = request.manterConectadoOrDefault();
+        var response = emitTokens(usuario, manterConectado);
+        log.debug("Login OK usuario id={} manterConectado={}", usuario.getId(), manterConectado);
+        return new AuthEmissionResult(response, manterConectado);
     }
 
     @Transactional
-    public AuthResponse refresh(TokenRefreshRequest request) {
+    public AuthEmissionResult refresh(TokenRefreshRequest request) {
         log.debug("Iniciando refresh");
         var hash = jwtService.hashRefreshToken(request.refreshToken());
         var token = refreshTokenRepository.findByTokenHash(hash)
@@ -110,12 +112,14 @@ public class AuthService {
         if (!token.estaValido()) {
             throw new BusinessRuleException("Refresh token expirado ou revogado");
         }
-        // Rotação: revoga o atual e emite um novo par
+        // Rotação: revoga o atual e emite um novo par, propagando manterConectado.
+        var manterConectado = token.isManterConectado();
         token.setRevogado(true);
         refreshTokenRepository.save(token);
-        var response = emitTokens(token.getUsuario());
-        log.debug("Refresh OK usuario id={}", token.getUsuario().getId());
-        return response;
+        var response = emitTokens(token.getUsuario(), manterConectado);
+        log.debug("Refresh OK usuario id={} manterConectado={}",
+                token.getUsuario().getId(), manterConectado);
+        return new AuthEmissionResult(response, manterConectado);
     }
 
     @Transactional
@@ -139,15 +143,17 @@ public class AuthService {
         return response;
     }
 
-    private AuthResponse emitTokens(Usuario usuario) {
+    private AuthResponse emitTokens(Usuario usuario, boolean manterConectado) {
         var accessToken = jwtService.generateAccessToken(usuario);
         var refreshRaw = jwtService.generateRefreshTokenRaw();
         var refreshHash = jwtService.hashRefreshToken(refreshRaw);
+        var ttlAplicado = jwtService.refreshTokenTtl(manterConectado);
         var refreshEntity = RefreshToken.builder()
                 .usuario(usuario)
                 .tokenHash(refreshHash)
-                .expiraEm(LocalDateTime.now().plus(jwtService.refreshTokenTtl()))
+                .expiraEm(LocalDateTime.now().plus(ttlAplicado))
                 .revogado(false)
+                .manterConectado(manterConectado)
                 .build();
         refreshTokenRepository.save(refreshEntity);
         return new AuthResponse(

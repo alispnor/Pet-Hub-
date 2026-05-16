@@ -38,6 +38,7 @@ public class JwtService {
     private final SecretKey signingKey;
     private final Duration accessTtl;
     private final Duration refreshTtl;
+    private final Duration refreshTtlExtended;
     private final SecureRandom random = new SecureRandom();
 
     public JwtService(JwtProperties props) {
@@ -48,6 +49,7 @@ public class JwtService {
         this.signingKey = Keys.hmacShaKeyFor(keyBytes);
         this.accessTtl = Duration.ofMinutes(props.accessTokenTtlMinutes());
         this.refreshTtl = Duration.ofDays(props.refreshTokenTtlDays());
+        this.refreshTtlExtended = Duration.ofDays(props.refreshTokenTtlExtendedDays());
     }
 
     public String generateAccessToken(Usuario usuario) {
@@ -104,6 +106,21 @@ public class JwtService {
 
     public Duration refreshTokenTtl() {
         return refreshTtl;
+    }
+
+    /**
+     * TTL aplicado ao refresh token quando o usuário marca "Manter conectado"
+     * no login. A flag fica persistida em {@code refresh_tokens.manter_conectado}
+     * e é propagada a cada rotação.
+     */
+    public Duration refreshTokenTtlExtended() {
+        return refreshTtlExtended;
+    }
+
+    /** Retorna {@link #refreshTokenTtlExtended()} se {@code manterConectado},
+     * caso contrário {@link #refreshTokenTtl()}. */
+    public Duration refreshTokenTtl(boolean manterConectado) {
+        return manterConectado ? refreshTtlExtended : refreshTtl;
     }
 
     /**

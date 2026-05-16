@@ -53,9 +53,10 @@ public class AuthController {
     @PostMapping("/login")
     @Operation(summary = "Login com email + senha; access token no body, refresh no cookie HttpOnly")
     public AuthResponse login(@Valid @RequestBody LoginRequest request, HttpServletResponse response) {
-        var emitted = authService.login(request);
-        refreshCookieService.setCookie(response, emitted.refreshToken(), jwtService.refreshTokenTtl());
-        return stripRefresh(emitted);
+        var emissionResult = authService.login(request);
+        var cookieTtl = jwtService.refreshTokenTtl(emissionResult.manterConectado());
+        refreshCookieService.setCookie(response, emissionResult.response().refreshToken(), cookieTtl);
+        return stripRefresh(emissionResult.response());
     }
 
     @PostMapping("/refresh")
@@ -64,9 +65,10 @@ public class AuthController {
                                 HttpServletRequest httpRequest,
                                 HttpServletResponse response) {
         var refreshToken = resolveRefreshToken(request, httpRequest);
-        var emitted = authService.refresh(new TokenRefreshRequest(refreshToken));
-        refreshCookieService.setCookie(response, emitted.refreshToken(), jwtService.refreshTokenTtl());
-        return stripRefresh(emitted);
+        var emissionResult = authService.refresh(new TokenRefreshRequest(refreshToken));
+        var cookieTtl = jwtService.refreshTokenTtl(emissionResult.manterConectado());
+        refreshCookieService.setCookie(response, emissionResult.response().refreshToken(), cookieTtl);
+        return stripRefresh(emissionResult.response());
     }
 
     @PostMapping("/logout")

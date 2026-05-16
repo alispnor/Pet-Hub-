@@ -19,15 +19,24 @@
       </div>
       <div>
         <label class="label" for="senha">Senha</label>
-        <input id="senha" type="password" autocomplete="current-password"
-               class="input"
-               formControlName="senha"
-               placeholder="••••••••" />
+        <app-password-input formControlName="senha"
+                            inputId="senha"
+                            autocomplete="current-password"
+                            placeholder="••••••••"
+                            [invalido]="form.controls.senha.touched && form.controls.senha.invalid" />
         <p *ngIf="form.controls.senha.touched && form.controls.senha.invalid"
            class="form-error">
           A senha deve ter no mínimo 8 caracteres.
         </p>
       </div>
+
+      <label class="flex items-center gap-2 text-sm text-graphite-700 cursor-pointer">
+        <input type="checkbox"
+               formControlName="manterConectado"
+               class="h-4 w-4 rounded border-graphite-300 text-coral-500
+                      focus:ring-coral-300" />
+        Manter conectado neste dispositivo (30 dias)
+      </label>
 
       <p *ngIf="erroLogin()" class="form-error">{{ erroLogin() }}</p>
 

@@ -29,6 +29,11 @@ export interface AuthResponse {
 export interface LoginRequest {
   email: string;
   senha: string;
+  /**
+   * Quando true, o backend emite o refresh token com TTL estendido
+   * (30 dias em vez de 7). Opcional — default false.
+   */
+  manterConectado?: boolean;
 }
 
 export interface RegisterClienteRequest {

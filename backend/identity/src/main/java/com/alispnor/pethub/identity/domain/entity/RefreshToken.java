@@ -48,6 +48,14 @@ public class RefreshToken {
     @Builder.Default
     private boolean revogado = false;
 
+    /**
+     * TRUE quando emitido com a flag "Manter conectado" do login. Propagado
+     * em cada rotação para manter o TTL estendido até logout explícito.
+     */
+    @Column(name = "manter_conectado", nullable = false)
+    @Builder.Default
+    private boolean manterConectado = false;
+
     @CreationTimestamp
     @Column(name = "criado_em", nullable = false, updatable = false)
     private LocalDateTime criadoEm;

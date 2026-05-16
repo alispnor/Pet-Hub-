@@ -152,17 +152,98 @@ A regra geral é: **não reabrimos código mergeado só por estes achados**, mas
 
 ---
 
+## LOG-2 · LogsMiddleware/SLF4J registra payloads sem mascarar PII
+
+- **Severidade:** Médio
+- **OWASP:** A09:2021 Security Logging and Monitoring Failures
+- **Origem:** Mapeado a partir de **A09-1** da auditoria OWASP 2025 do guep-crm.
+- **Local:** Sem `MaskingPatternLayout` configurado em `logback-spring.xml`; serviços que chamam `log.info("payload={}", request)` podem vazar CPF, email, telefone, número de cartão, tokens.
+- **Estado atual:** O backend já trata os casos críticos no nível do controller (não loga PAN/CVV, mascara CPF em response). Mas o filtro de log HTTP genérico (e qualquer `@Slf4j` que receba um DTO completo no debug) ainda pode imprimir o request body intacto.
+- **Fix-alvo:**
+  1. Adicionar `ch.qos.logback.classic.PatternLayout` custom em `logback-spring.xml` aplicando regex de mascaramento para chaves sensíveis: `password`, `senha`, `cpf`, `cnpj`, `cardNumber`, `cvv`, `authorization`, `bearer`, `token`, `secret`, `apiKey`.
+  2. Verificar `HttpExchangesAutoConfiguration` do actuator se ativado — desabilitar em prod ou aplicar masking.
+  3. Adicionar lista canônica de chaves sensíveis em `common/log/MaskingPatterns.java` para reuso.
+- **Quando endereçar:** Junto com OBS-1 (audit log Fase 6) ou no próximo PR que mexer em `logback-spring.xml`.
+
+---
+
+## LOG-3 · Logback sem rotação configurada
+
+- **Severidade:** Baixo (alto se houver muito tráfego sem rotação por dias)
+- **OWASP:** A09:2021
+- **Origem:** Mapeado a partir de **A09-3** do guep-crm.
+- **Local:** Hoje o backend roda em container e `STDOUT` é capturado pelo Docker — o `logging.file.*` no application.yml não está setado, então não há arquivo rotacionado a se preocupar **hoje**. Quando entrar deploy fora de container ou volume persistente (Fase 8/11), faz diferença.
+- **Estado atual:** Spring Boot default loga em STDOUT; em ambiente containerizado, o `docker logs` é o canal canônico. Rotação fica por conta do `json-file` driver do Docker (configurado via `daemon.json`).
+- **Fix-alvo:**
+  1. Em `logback-spring.xml` adicionar `<RollingFileAppender>` com `<rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">` — `maxFileSize=50MB`, `maxHistory=14`, `totalSizeCap=2GB`.
+  2. Garantir que activate apenas para profile não-`dev` (dev usa STDOUT).
+  3. Configurar Docker `log-opts: max-size=50m max-file=5` no `docker-compose.dev.yml` para o caso dev/host.
+- **Quando endereçar:** Fase 8 (Docker) ou Fase 11 (cloud) — antes do primeiro ambiente com SLA de retenção.
+
+---
+
+## DEP-2 · Auditoria de dependências não usadas no Maven
+
+- **Severidade:** Baixo
+- **OWASP:** A06:2021 Vulnerable and Outdated Components
+- **Origem:** Mapeado a partir de **A03-2** do guep-crm (que apontou `puppeteer` e `xmlrpc` não usados).
+- **Local:** `backend/*/pom.xml` — possíveis deps adicionadas em fases iniciais e que não tem mais consumidor.
+- **Estado atual:** Não auditado. Maven não falha o build por dep não usada por default.
+- **Fix-alvo:**
+  1. Rodar `mvn dependency:analyze` no parent + cada módulo.
+  2. Para cada dep listada como "Unused declared dependencies", confirmar (algumas são usadas via reflection ou Spring Boot starter aninhado) e remover do `pom.xml`.
+  3. Após Fase 8 (CI real), adicionar `mvn dependency:analyze-only` ao pipeline para detectar regressão.
+- **Quando endereçar:** Junto com DEP-1 (OWASP Dependency-Check) — Fase 8/9.
+
+---
+
+## EXC-1 · Sem handler global para uncaughtException de threads async
+
+- **Severidade:** Baixo
+- **OWASP:** A09:2021 + A04:2021 Insecure Design (degradação silenciosa)
+- **Origem:** Mapeado a partir de **A10-1** do guep-crm.
+- **Local:** `PetHubApplication.java` — `Thread.setDefaultUncaughtExceptionHandler` não está configurado. `@Scheduled` jobs (`ReservaExpiracaoJob`) e qualquer `@Async` futuro podem morrer em silêncio se lançarem exception não-tratada.
+- **Estado atual:** `GlobalExceptionHandler` cobre requisições HTTP (Spring MVC); threads de scheduler/async ficam fora desse escopo. Spring tem `SimpleAsyncUncaughtExceptionHandler` mas não foi habilitado.
+- **Fix-alvo:**
+  1. Em `PetHubApplication` `@Bean` `AsyncUncaughtExceptionHandler` que loga via `log.error("Async task falhou", throwable)` e dispara evento para `ApplicationEventPublisher` (a ser consumido por monitoring).
+  2. Em `main()` adicionar `Thread.setDefaultUncaughtExceptionHandler((thread, throwable) -> log.error("Uncaught em {}", thread.getName(), throwable))`.
+  3. Configurar `org.springframework.scheduling.annotation.SchedulingConfigurer` se quiser observabilidade extra dos `@Scheduled`.
+- **Quando endereçar:** Próximo PR que mexer em `PetHubApplication` ou ao implementar OBS-1 (audit/security events).
+
+---
+
+## PAY-3 · Spring Boot multipart/payload limits no default
+
+- **Severidade:** Baixo
+- **OWASP:** A04:2021 Insecure Design + A05:2021 Security Misconfiguration
+- **Origem:** Mapeado a partir de **A02-4** do guep-crm (50MB default no Express).
+- **Local:** `application.yml` — `spring.servlet.multipart.max-file-size` e `max-request-size` não setados. Spring default é 1MB para multipart e 10MB no `server.tomcat.max-http-form-post-size`.
+- **Estado atual:** Default já é razoável (mais restritivo que o Express do CRM). Upload de foto de pet usa multipart real (controller dedicado em customer), validado pelo `APP_UPLOADS_MAX_BYTES`.
+- **Fix-alvo:**
+  1. Setar explicitamente em `application.yml`: `spring.servlet.multipart.max-file-size=2MB`, `max-request-size=10MB`.
+  2. Em endpoints que aceitam JSON volumoso (admin importações futuras), override via `@RequestMapping consumes` + interceptor.
+  3. Documentar em `appsec-guidelines.md` seção 1.x: "uploads passam por endpoint dedicado com Multer-equivalent; APIs JSON não devem aceitar payloads > 1MB".
+- **Quando endereçar:** Próximo PR que mexer em `application.yml` ou junto com SEC-1 (headers de segurança).
+
+---
+
 ## Resumo por marco
 
 | Marco | Pendências que precisam fechar |
 |---|---|
 | Antes do storefront em staging | JWT-1 (iss/aud), CORS-1 (validador prod), VAL-1 (CSP nginx) |
 | Antes de gateway real | PAY-1 (whitelist response_gateway) |
-| Fase 6 (admin) | OBS-1 (audit log) |
-| Fase 8 (Docker) | SEC-1 (headers HSTS), VAL-1 (CSP), FLY-1 (clean-disabled) |
-| Fase 8/9 (CI/CD) | DEP-1 (scan de dependências) |
+| Fase 6 (admin) | OBS-1 (audit log), LOG-2 (mascaramento de PII) |
+| Fase 8 (Docker) | SEC-1 (headers HSTS), VAL-1 (CSP), FLY-1 (clean-disabled), LOG-3 (rotação) |
+| Fase 8/9 (CI/CD) | DEP-1 (scan de dependências), DEP-2 (deps não usadas) |
 | Fase 11 (cloud N réplicas) | RL-1 (Bucket4j+Redis) |
 | Quando houver primeira rotação de chave | JPA-1 (cipher versionado) |
 | Próximo PR no GlobalExceptionHandler | LOG-1 |
+| Próximo PR no `application.yml` | PAY-3 (multipart limits) |
+| Próximo PR em `PetHubApplication` | EXC-1 (uncaughtException handler) |
 
 Itens fechados deste documento devem ser removidos (ou movidos para `notes/appsec-historico.md` se quisermos preservar a justificativa).
+
+## Mapping CRM → Pet Hub
+
+Os 5 achados LOG-2, LOG-3, DEP-2, EXC-1, PAY-3 foram identificados ao mapear a auditoria OWASP 2025 do `guep-crm` (`AUDITORIA-OWASP-2025-PLANO.md`) contra o Pet Hub. Veja o documento `AUDITORIA-OWASP-2025-PETHUB.md` na raiz para o sumário consolidado.

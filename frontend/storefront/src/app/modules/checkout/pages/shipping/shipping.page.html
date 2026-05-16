@@ -1,0 +1,49 @@
+<section class="mx-auto max-w-page px-6 py-12">
+  <app-stepper [steps]="passosCheckout" [active]="2" />
+
+  <h1 class="mt-8 text-2xl text-graphite-900">Frete</h1>
+  <p *ngIf="enderecoSelecionado() as enderecoEntrega" class="mt-1 text-sm text-graphite-500">
+    Entregando em {{ enderecoEntrega.cidade }}/{{ enderecoEntrega.uf }} ·
+    {{ formatarCep(enderecoEntrega.cep) }}
+  </p>
+
+  <div *ngIf="loading()" class="mt-8 space-y-3">
+    <div class="h-16 animate-pulse rounded bg-graphite-100"></div>
+    <div class="h-16 animate-pulse rounded bg-graphite-100"></div>
+    <div class="h-16 animate-pulse rounded bg-graphite-100"></div>
+  </div>
+
+  <p *ngIf="erroCalculo()" class="form-error mt-6">{{ erroCalculo() }}</p>
+
+  <div *ngIf="!loading() && !erroCalculo()" class="mt-6 space-y-3">
+    <label *ngFor="let opcaoDeFrete of opcoesDisponiveis()" class="block">
+      <input type="radio" name="opcaoFrete" class="peer sr-only"
+             [value]="opcaoDeFrete.codigo"
+             [checked]="codigoOpcaoSelecionada() === opcaoDeFrete.codigo"
+             (change)="selecionarOpcao(opcaoDeFrete)" />
+      <div class="radio-card">
+        <div class="flex justify-between">
+          <div>
+            <p class="font-medium text-graphite-900">{{ opcaoDeFrete.servico }}</p>
+            <p class="text-xs text-graphite-500">
+              {{ opcaoDeFrete.transportadora }} · entrega em até {{ opcaoDeFrete.prazoDias }} dia(s) úteis
+            </p>
+          </div>
+          <p class="font-semibold text-graphite-900">
+            {{ opcaoDeFrete.valor | currency:'BRL':'symbol':'1.2-2':'pt-BR' }}
+          </p>
+        </div>
+      </div>
+    </label>
+  </div>
+
+  <div class="mt-8 flex justify-between">
+    <button class="btn-ghost" type="button" (click)="voltarParaEndereco()">← Voltar para endereço</button>
+    <button class="btn-primary"
+            type="button"
+            [disabled]="!codigoOpcaoSelecionada()"
+            (click)="prosseguirParaPagamento()">
+      Continuar para pagamento
+    </button>
+  </div>
+</section>

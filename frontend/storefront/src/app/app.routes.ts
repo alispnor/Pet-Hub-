@@ -47,6 +47,13 @@ export const routes: Routes = [
             .then((moduleAddress) => moduleAddress.CheckoutAddressPage),
       },
       {
+        path: 'checkout/frete',
+        canActivate: [authGuard, checkoutStepGuard(['enderecoEntregaId', 'enderecoCobrancaId'])],
+        loadComponent: () =>
+          import('@modules/checkout/pages/shipping/shipping.page')
+            .then((moduleShipping) => moduleShipping.CheckoutShippingPage),
+      },
+      {
         path: 'minha-conta',
         canActivate: [authGuard],
         loadComponent: () =>

@@ -125,7 +125,7 @@ Status: ⬜ Pendente · 🚧 Em andamento · ✅ Concluída
 
 ---
 
-## Fase 5 — Frontend Storefront (Angular) · ⬜
+## Fase 5 — Frontend Storefront (Angular) · 🚧 (slices 1-3 ✅, slice 4 pendente)
 
 **Objetivo:** Loja virtual completa consumindo APIs das Fases 1–4.
 

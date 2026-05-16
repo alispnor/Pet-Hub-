@@ -60,23 +60,88 @@ Before generating any component, screen, or style:
 
 Veja o [ROADMAP.md](./ROADMAP.md) — projeto em 12 fases progressivas.
 
-## 🚀 Quick Start
+## 🚀 Rodando localmente (Fases 1–5)
+
+> **Status atual:** Fases 1–4 ✅ entregues. Fase 5 (Storefront Angular) em andamento — slices 1 e 2 publicados. Veja [ROADMAP.md](./ROADMAP.md) e [`ai-memory/roadmap/`](./ai-memory/roadmap/) para o detalhamento.
+>
+> O **SPA de administração** entra só na Fase 6. Hoje a parte admin do produto é exposta como API REST sob `/api/v1/admin/...` (consumir via Swagger ou cURL — não há UI ainda).
+
+### Pré-requisitos
+
+- Docker + Docker Compose
+- Node.js 18+ (para o storefront Angular)
+- Arquivo `.env.local` na raiz do repo. Se não existir, copie do exemplo:
+  ```bash
+  cp .env.local.example .env.local
+  ```
+  Edite `APP_ENCRYPTION_KEY` (`openssl rand -base64 32`) e `JWT_SECRET` (`openssl rand -base64 64`) antes de subir.
+
+### 1. Subir infra (Postgres + Redis + pgAdmin)
 
 ```bash
-# Clone o repositório
-git clone https://github.com/alispnor/Pet-Hub-.git pet-hub
-cd pet-hub
-
-# Sobe o ambiente completo (a partir da Fase 8)
-make up
-
-# Acessa:
-# Storefront: http://localhost:4200
-# Admin:      http://localhost:4201
-# API:        http://localhost:8080/swagger-ui.html
+docker compose --env-file .env.local \
+  -f infrastructure/docker/docker-compose.dev.yml up -d
 ```
 
-> **Status atual:** Fase 0 (Bootstrap). Comandos `make up` e demais entregáveis de runtime aparecem a partir das fases seguintes. Veja [ROADMAP.md](./ROADMAP.md).
+| Serviço | URL |
+|---|---|
+| Postgres | `localhost:5432` (db/user/pwd do `.env.local`) |
+| Redis | `localhost:6380` |
+| pgAdmin | http://localhost:5050 |
+
+### 2. Subir backend (porta 8080)
+
+A máquina de dev não precisa de JDK/Maven nativos — o backend roda em container Maven com cache em `~/.m2`:
+
+```bash
+cd backend && docker run --rm -d --name pethub-app-dev \
+  --env-file /home/ali/projects/pet-hub/.env.local \
+  -v "$PWD":/workspace -v /home/ali/.m2:/root/.m2 \
+  --network host -w /workspace \
+  maven:3.9-eclipse-temurin-21 \
+  mvn -B -ntp -pl application spring-boot:run -DskipTests
+```
+
+O Spring Boot leva ~15-30s pra subir na 1ª execução (download de deps). Acompanhe com `docker logs -f pethub-app-dev`.
+
+| URL | O que é |
+|---|---|
+| http://localhost:8080/actuator/health | Healthcheck — deve responder `{"status":"UP"}` |
+| http://localhost:8080/swagger-ui.html | **Swagger UI** — explorar/testar todos os endpoints |
+| http://localhost:8080/v3/api-docs | OpenAPI JSON |
+
+### 3. Subir storefront Angular (porta 4242)
+
+```bash
+cd frontend/storefront
+npm install   # primeira vez apenas
+npx ng serve --host 127.0.0.1 --port 4242 --proxy-config proxy.conf.json
+```
+
+Storefront em http://127.0.0.1:4242 (o proxy encaminha `/api/*` pra `http://localhost:8080`).
+
+### Credenciais seed (dev)
+
+| Tipo | Email | Senha |
+|---|---|---|
+| Cliente | `maria.fase2@pethub.com` | `Senha@123` |
+| Admin | `admin@pethub.com` | `Admin@123` |
+
+No Swagger, clicar em **Authorize** (canto superior direito) e colar o `accessToken` retornado por `POST /auth/login` (sem prefixo `Bearer`).
+
+### Parar tudo
+
+```bash
+docker stop pethub-app-dev                                                      # backend
+docker compose -f infrastructure/docker/docker-compose.dev.yml stop             # infra
+# storefront: Ctrl+C no terminal do ng serve
+```
+
+### Troubleshooting rápido
+
+- **Swagger devolve `connection refused`** → backend ainda subindo, espere 30s e tente `curl localhost:8080/actuator/health`.
+- **Storefront carrega mas API dá CORS** → confira `CORS_ALLOWED_ORIGINS` no `.env.local` (deve incluir `http://127.0.0.1:4242`).
+- **`port already in use`** → `docker ps` para ver containers antigos; `lsof -i :8080` ou `:4242` para processos locais.
 
 ## 📚 Documentação
 

@@ -68,6 +68,13 @@ export const routes: Routes = [
             .then((moduleReview) => moduleReview.CheckoutReviewPage),
       },
       {
+        path: 'checkout/sucesso/:numero',
+        canActivate: [authGuard],
+        loadComponent: () =>
+          import('@modules/checkout/pages/success/success.page')
+            .then((moduleSuccess) => moduleSuccess.CheckoutSuccessPage),
+      },
+      {
         path: 'minha-conta',
         canActivate: [authGuard],
         loadComponent: () =>

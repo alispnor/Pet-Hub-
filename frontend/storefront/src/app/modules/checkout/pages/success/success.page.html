@@ -1,0 +1,40 @@
+<section class="mx-auto max-w-page px-6 py-16 text-center">
+  <div class="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-leaf-100 text-3xl text-leaf-700">
+    ✓
+  </div>
+  <h1 class="mt-6 text-3xl text-graphite-900">Pedido confirmado!</h1>
+  <p class="mt-2 text-graphite-500">
+    Número do pedido: <span class="font-mono text-graphite-900">{{ numeroPedido() }}</span>
+  </p>
+
+  <div *ngIf="snapshotPedido() as resumoFinalPedido"
+       class="mx-auto mt-8 max-w-md surface text-left space-y-2 text-sm">
+    <div class="flex justify-between">
+      <span class="text-graphite-500">Total pago</span>
+      <span class="font-semibold">{{ resumoFinalPedido.valorTotal | currency:'BRL':'symbol':'1.2-2':'pt-BR' }}</span>
+    </div>
+    <div class="flex justify-between">
+      <span class="text-graphite-500">Método</span>
+      <span>{{ humanizarMetodo(resumoFinalPedido.metodo) }}</span>
+    </div>
+    <div *ngIf="resumoFinalPedido.qrCode" class="flex justify-between">
+      <span class="text-graphite-500">PIX QR Code</span>
+      <span class="font-mono text-xs break-all">{{ resumoFinalPedido.qrCode }}</span>
+    </div>
+    <div *ngIf="resumoFinalPedido.boletoUrl" class="flex justify-between">
+      <span class="text-graphite-500">Boleto</span>
+      <a [href]="resumoFinalPedido.boletoUrl" target="_blank" rel="noopener"
+         class="text-coral-500">Abrir PDF</a>
+    </div>
+  </div>
+
+  <div class="mt-8 flex flex-wrap justify-center gap-3">
+    <button class="btn-secondary"
+            type="button"
+            disabled
+            title="Disponível em breve">
+      Acompanhar pedido
+    </button>
+    <a routerLink="/produtos" class="btn-primary">Voltar à loja</a>
+  </div>
+</section>

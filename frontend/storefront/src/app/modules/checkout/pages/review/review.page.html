@@ -1,0 +1,120 @@
+<section class="mx-auto max-w-page px-6 py-12">
+  <app-stepper [steps]="passosCheckout" [active]="4" />
+  <h1 class="mt-8 text-2xl text-graphite-900">Revisão do pedido</h1>
+
+  <div *ngIf="loading()" class="mt-8 space-y-3">
+    <div class="h-24 animate-pulse rounded bg-graphite-100"></div>
+    <div class="h-24 animate-pulse rounded bg-graphite-100"></div>
+    <div class="h-24 animate-pulse rounded bg-graphite-100"></div>
+  </div>
+
+  <p *ngIf="erroCarregamento()" class="form-error mt-6">{{ erroCarregamento() }}</p>
+
+  <ng-container *ngIf="resumoPreview() as resumoPedido">
+    <div class="mt-8 grid gap-8 lg:grid-cols-[1fr_360px]">
+      <div class="space-y-6">
+        <div class="surface">
+          <div class="flex justify-between">
+            <h2 class="text-base text-graphite-900">Endereço de entrega</h2>
+            <a routerLink="/checkout/endereco" class="text-sm text-coral-500">Editar</a>
+          </div>
+          <p *ngIf="enderecoEscolhido() as enderecoEntrega"
+             class="mt-2 text-sm text-graphite-700">
+            {{ enderecoEntrega.apelido }} — {{ enderecoEntrega.logradouro }}<ng-container *ngIf="enderecoEntrega.numero">, {{ enderecoEntrega.numero }}</ng-container><br>
+            {{ enderecoEntrega.bairro }}, {{ enderecoEntrega.cidade }}/{{ enderecoEntrega.uf }} ·
+            {{ formatarCep(enderecoEntrega.cep) }}
+          </p>
+        </div>
+        <div class="surface">
+          <div class="flex justify-between">
+            <h2 class="text-base text-graphite-900">Frete</h2>
+            <a routerLink="/checkout/frete" class="text-sm text-coral-500">Editar</a>
+          </div>
+          <p class="mt-2 text-sm text-graphite-700">
+            {{ resumoPedido.freteEscolhido.servico }} · {{ resumoPedido.freteEscolhido.transportadora }} ·
+            entrega em até {{ resumoPedido.freteEscolhido.prazoDias }} dia(s) úteis
+          </p>
+        </div>
+        <div class="surface">
+          <div class="flex justify-between">
+            <h2 class="text-base text-graphite-900">Pagamento</h2>
+            <a routerLink="/checkout/pagamento" class="text-sm text-coral-500">Editar</a>
+          </div>
+          <p *ngIf="metodoPagamentoEscolhido() as metodoPagamento"
+             class="mt-2 text-sm text-graphite-700">
+            <ng-container *ngIf="metodoPagamento.tipo === 'CARTAO_CREDITO'">
+              {{ metodoPagamento.bandeira }} ···· {{ metodoPagamento.ultimosQuatroDigitos }} em {{ checkoutState.state().parcelas }}x
+            </ng-container>
+            <ng-container *ngIf="metodoPagamento.tipo === 'PIX'">PIX (QR Code após confirmação)</ng-container>
+            <ng-container *ngIf="metodoPagamento.tipo === 'BOLETO'">Boleto (3 dias úteis)</ng-container>
+          </p>
+        </div>
+        <div class="surface">
+          <h2 class="text-base text-graphite-900">Itens ({{ resumoPedido.itens.length }})</h2>
+          <ul class="mt-2 divide-y divide-graphite-200">
+            <li *ngFor="let itemPedido of resumoPedido.itens" class="flex justify-between py-2 text-sm">
+              <span class="text-graphite-700">{{ itemPedido.qty }}× {{ itemPedido.nome }}</span>
+              <span>{{ itemPedido.subtotal | currency:'BRL':'symbol':'1.2-2':'pt-BR' }}</span>
+            </li>
+          </ul>
+        </div>
+      </div>
+
+      <aside class="surface space-y-3">
+        <h2 class="text-lg text-graphite-900">Total</h2>
+        <div class="space-y-1.5 text-sm">
+          <div class="flex justify-between">
+            <span class="text-graphite-500">Subtotal</span>
+            <span>{{ resumoPedido.subtotal | currency:'BRL':'symbol':'1.2-2':'pt-BR' }}</span>
+          </div>
+          <div *ngIf="resumoPedido.descontoPromocoes > 0" class="flex justify-between text-leaf-700">
+            <span>Promoções</span>
+            <span>− {{ resumoPedido.descontoPromocoes | currency:'BRL':'symbol':'1.2-2':'pt-BR' }}</span>
+          </div>
+          <div *ngIf="resumoPedido.descontoCupom > 0" class="flex justify-between text-leaf-700">
+            <span>Cupom {{ resumoPedido.cupomCodigo }}</span>
+            <span>− {{ resumoPedido.descontoCupom | currency:'BRL':'symbol':'1.2-2':'pt-BR' }}</span>
+          </div>
+          <div *ngIf="resumoPedido.impostosCalculados.valorImpostos > 0" class="flex justify-between">
+            <span class="text-graphite-500">Impostos</span>
+            <span>{{ resumoPedido.impostosCalculados.valorImpostos | currency:'BRL':'symbol':'1.2-2':'pt-BR' }}</span>
+          </div>
+          <div class="flex justify-between">
+            <span class="text-graphite-500">Frete</span>
+            <span>{{ resumoPedido.freteEscolhido.valor | currency:'BRL':'symbol':'1.2-2':'pt-BR' }}</span>
+          </div>
+        </div>
+        <hr class="border-graphite-200">
+        <div class="flex justify-between font-semibold">
+          <span>Total</span>
+          <span class="text-lg">{{ resumoPedido.valorTotal | currency:'BRL':'symbol':'1.2-2':'pt-BR' }}</span>
+        </div>
+        <p *ngIf="erroSubmissao()" class="form-error">{{ erroSubmissao() }}</p>
+        <button class="btn-primary w-full"
+                type="button"
+                [disabled]="submetendoPedido()"
+                (click)="finalizarCompra()">
+          <span *ngIf="!submetendoPedido()">Finalizar compra · {{ resumoPedido.valorTotal | currency:'BRL':'symbol':'1.2-2':'pt-BR' }}</span>
+          <span *ngIf="submetendoPedido()">Processando…</span>
+        </button>
+      </aside>
+    </div>
+  </ng-container>
+
+  <!-- Dialog "Estoque mudou" -->
+  <div *ngIf="dialogEstoque()"
+       class="fixed inset-0 z-50 flex items-center justify-center bg-graphite-900/60 px-4">
+    <div class="w-full max-w-md rounded-lg bg-graphite-0 p-6">
+      <h2 class="text-lg text-graphite-900">Estoque mudou</h2>
+      <p class="mt-2 text-sm text-graphite-700">
+        Algumas mudanças aconteceram no seu carrinho enquanto você revisava o pedido.
+      </p>
+      <p class="mt-2 rounded bg-graphite-100 px-3 py-2 text-sm font-mono text-graphite-700">
+        {{ dialogEstoque()!.mensagem }}
+      </p>
+      <div class="mt-4 flex justify-end gap-2">
+        <button class="btn-primary" type="button" (click)="ajustarCarrinho()">Ajustar carrinho</button>
+      </div>
+    </div>
+  </div>
+</section>

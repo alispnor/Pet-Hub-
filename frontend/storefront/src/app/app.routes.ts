@@ -61,6 +61,13 @@ export const routes: Routes = [
             .then((modulePayment) => modulePayment.CheckoutPaymentPage),
       },
       {
+        path: 'checkout/revisao',
+        canActivate: [authGuard, checkoutStepGuard(['formaPagamentoId'])],
+        loadComponent: () =>
+          import('@modules/checkout/pages/review/review.page')
+            .then((moduleReview) => moduleReview.CheckoutReviewPage),
+      },
+      {
         path: 'minha-conta',
         canActivate: [authGuard],
         loadComponent: () =>

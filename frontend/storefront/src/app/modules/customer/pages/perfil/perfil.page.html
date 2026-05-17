@@ -1,0 +1,73 @@
+<section>
+  <h1 class="text-2xl font-display font-semibold text-graphite-900">Perfil</h1>
+  <p class="mt-1 text-sm text-graphite-600">Atualize seus dados pessoais. Nome, e-mail e CPF não podem ser editados aqui.</p>
+
+  <app-skeleton *ngIf="carregando()" [lines]="6" class="mt-6 block max-w-xl" />
+
+  <div *ngIf="erroCarregamento()" class="mt-6 rounded-md border border-red-200 bg-red-50 p-4 text-sm text-red-700 max-w-xl">
+    Não foi possível carregar seu perfil.
+    <button type="button" class="ml-2 underline" (click)="carregar()">Tentar de novo</button>
+  </div>
+
+  <form *ngIf="!carregando() && !erroCarregamento() && perfilAtual() as perfil"
+        [formGroup]="formulario" (ngSubmit)="salvar()" class="mt-6 max-w-xl space-y-4">
+
+    <div>
+      <label class="block text-sm font-medium text-graphite-700">Nome</label>
+      <input type="text" [value]="perfil.nome" readonly disabled
+             class="mt-1 w-full rounded-md border-graphite-200 bg-graphite-50 text-graphite-700" />
+    </div>
+
+    <div>
+      <label class="block text-sm font-medium text-graphite-700">E-mail</label>
+      <input type="email" [value]="perfil.email" readonly disabled
+             class="mt-1 w-full rounded-md border-graphite-200 bg-graphite-50 text-graphite-700" />
+    </div>
+
+    <div>
+      <label class="block text-sm font-medium text-graphite-700">CPF</label>
+      <input type="text" [value]="perfil.cpfMascarado ?? 'Não cadastrado'" readonly disabled
+             class="mt-1 w-full rounded-md border-graphite-200 bg-graphite-50 text-graphite-700" />
+    </div>
+
+    <div>
+      <label class="block text-sm font-medium text-graphite-700" for="telefoneAdicional">Telefone</label>
+      <input id="telefoneAdicional" type="tel" formControlName="telefoneAdicional" inputmode="numeric"
+             placeholder="11912345678" class="mt-1 w-full rounded-md border-graphite-300" />
+      <p *ngIf="formulario.controls.telefoneAdicional.errors?.['pattern']" class="text-xs text-red-600 mt-1">
+        Telefone deve ter 10 ou 11 dígitos (apenas números).
+      </p>
+    </div>
+
+    <div>
+      <label class="block text-sm font-medium text-graphite-700" for="dataNascimento">Data de nascimento</label>
+      <input id="dataNascimento" type="date" formControlName="dataNascimento"
+             class="mt-1 w-full rounded-md border-graphite-300" />
+    </div>
+
+    <div>
+      <label class="block text-sm font-medium text-graphite-700" for="genero">Gênero</label>
+      <select id="genero" formControlName="genero" class="mt-1 w-full rounded-md border-graphite-300">
+        <option value="">Selecione...</option>
+        <option *ngFor="let valor of listaGeneros" [value]="valor">{{ GENEROS_LABEL[valor] }}</option>
+      </select>
+    </div>
+
+    <label class="flex items-center gap-2 text-sm text-graphite-700">
+      <input type="checkbox" formControlName="aceiteTermos" />
+      Aceito os termos de uso
+    </label>
+
+    <label class="flex items-center gap-2 text-sm text-graphite-700">
+      <input type="checkbox" formControlName="aceiteMarketing" />
+      Aceito receber comunicações de marketing
+    </label>
+
+    <div class="pt-2">
+      <button type="submit" class="btn-primary text-sm py-2 px-4"
+              [disabled]="formulario.invalid || !formulario.dirty || salvando()">
+        {{ salvando() ? 'Salvando...' : 'Salvar alterações' }}
+      </button>
+    </div>
+  </form>
+</section>

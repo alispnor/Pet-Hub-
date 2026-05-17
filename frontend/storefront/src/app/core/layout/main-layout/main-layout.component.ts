@@ -4,11 +4,13 @@ import { CommonModule } from '@angular/common';
 
 import { AuthService } from '@core/services/auth.service';
 import { CartService } from '@modules/cart/services/cart.service';
+import { ToastStackComponent } from '@shared/components/toast-stack/toast-stack.component';
+import { ConfirmDialogComponent } from '@shared/components/confirm-dialog/confirm-dialog.component';
 
 @Component({
   selector: 'app-main-layout',
   standalone: true,
-  imports: [CommonModule, RouterOutlet, RouterLink, RouterLinkActive],
+  imports: [CommonModule, RouterOutlet, RouterLink, RouterLinkActive, ToastStackComponent, ConfirmDialogComponent],
   templateUrl: './main-layout.component.html',
   styleUrls: ['./main-layout.component.scss'],
 })

@@ -78,7 +78,52 @@ export const routes: Routes = [
         path: 'minha-conta',
         canActivate: [authGuard],
         loadComponent: () =>
-          import('@modules/home/pages/home/home.page').then((moduleHome) => moduleHome.HomePage),
+          import('@modules/customer/pages/account-shell/account-shell.page')
+            .then((moduleShell) => moduleShell.AccountShellPage),
+        children: [
+          {
+            path: '',
+            loadComponent: () =>
+              import('@modules/customer/pages/overview/overview.page')
+                .then((moduleOverview) => moduleOverview.OverviewPage),
+          },
+          {
+            path: 'perfil',
+            loadComponent: () =>
+              import('@modules/customer/pages/perfil/perfil.page')
+                .then((modulePerfil) => modulePerfil.PerfilPage),
+          },
+          {
+            path: 'enderecos',
+            loadComponent: () =>
+              import('@modules/customer/pages/enderecos/enderecos.page')
+                .then((moduleEnderecos) => moduleEnderecos.EnderecosPage),
+          },
+          {
+            path: 'cartoes',
+            loadComponent: () =>
+              import('@modules/customer/pages/cartoes/cartoes.page')
+                .then((moduleCartoes) => moduleCartoes.CartoesPage),
+          },
+          {
+            path: 'pets',
+            loadComponent: () =>
+              import('@modules/customer/pages/pets/pets.page')
+                .then((modulePets) => modulePets.PetsPage),
+          },
+          {
+            path: 'pedidos',
+            loadComponent: () =>
+              import('@modules/orders/pages/lista/lista.page')
+                .then((moduleLista) => moduleLista.OrdersListaPage),
+          },
+          {
+            path: 'pedidos/:numero',
+            loadComponent: () =>
+              import('@modules/orders/pages/detalhe/detalhe.page')
+                .then((moduleDetalhe) => moduleDetalhe.OrdersDetalhePage),
+          },
+        ],
       },
     ],
   },

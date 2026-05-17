@@ -29,12 +29,11 @@
   </div>
 
   <div class="mt-8 flex flex-wrap justify-center gap-3">
-    <button class="btn-secondary"
-            type="button"
-            disabled
-            title="Disponível em breve">
+    <a [routerLink]="['/minha-conta/pedidos', numeroPedido()]"
+       class="btn-secondary"
+       aria-label="Acompanhar pedido">
       Acompanhar pedido
-    </button>
+    </a>
     <a routerLink="/produtos" class="btn-primary">Voltar à loja</a>
   </div>
 </section>

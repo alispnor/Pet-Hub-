@@ -80,6 +80,9 @@ public class Produto {
     @Column(nullable = false, length = 8)
     private String ncm;
 
+    @Column(name = "video_url", length = 500)
+    private String videoUrl;
+
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 30)
     private Origem origem;

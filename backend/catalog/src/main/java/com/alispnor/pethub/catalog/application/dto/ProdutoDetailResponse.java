@@ -24,6 +24,7 @@ public record ProdutoDetailResponse(
         List<ProdutoImagemResponse> imagens,
         CategoriaResponse categoria,
         boolean ativo,
-        boolean destacado
+        boolean destacado,
+        String videoUrl
 ) {
 }

@@ -2,6 +2,7 @@ package com.alispnor.pethub.catalog.application.dto;
 
 import com.alispnor.pethub.catalog.domain.entity.Origem;
 import com.alispnor.pethub.common.validation.ValidNcm;
+import com.alispnor.pethub.common.validation.ValidVideoEmbedUrl;
 import jakarta.validation.constraints.DecimalMin;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -25,6 +26,7 @@ public record ProdutoRequest(
         @NotNull Origem origem,
         Map<String, Object> specs,
         boolean destacado,
-        @NotNull @DecimalMin(value = "0.01", message = "Preço inicial deve ser maior que zero") BigDecimal precoInicial
+        @NotNull @DecimalMin(value = "0.01", message = "Preço inicial deve ser maior que zero") BigDecimal precoInicial,
+        @ValidVideoEmbedUrl @Size(max = 500) String videoUrl
 ) {
 }

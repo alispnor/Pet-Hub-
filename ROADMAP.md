@@ -146,9 +146,11 @@ Status: ⬜ Pendente · 🚧 Em andamento · ✅ Concluída
 
 ---
 
-## Fase 6 — Frontend Admin (Back-Office) · 🚧 (slice 6.1 ✅, slices 6.2-6.5 pendentes)
+## Fase 6 — Frontend Admin (Back-Office) · 🚧 (slice 6.1 ✅, slice 6.2 🚧 backend 9/10, slices 6.3-6.6 pendentes)
 
-> **Slice 6.1 entregue em 2026-05-17.** Scaffold `frontend/admin` (Angular 17, porta 4244), AdminAuthService com validação de role no login (rejeita ROLE_CLIENTE), AdminShell (topbar + sidebar com toggle de pin + drawer mobile), `/login` e `/dashboard` placeholder. Plano dos 5 slices em [`ai-memory/roadmap/fase-6-decomposicao.md`](./ai-memory/roadmap/fase-6-decomposicao.md); histórico em [`ai-memory/roadmap/fase-6-pendencias.md`](./ai-memory/roadmap/fase-6-pendencias.md).
+> **Slice 6.1 entregue em 2026-05-17.** Scaffold `frontend/admin` (Angular 17, porta 4244), AdminAuthService com validação de role no login (rejeita ROLE_CLIENTE), AdminShell (topbar + sidebar com toggle de pin + drawer mobile), `/login` e `/dashboard` placeholder.
+>
+> **Slice 6.2 em andamento (pausado 2026-05-17 com backend 9/10 concluído):** PhotoStorage movido pra `common/`, Flyway V18 `produtos.video_url`, `@ValidVideoEmbedUrl` (whitelist YouTube/Vimeo + anti-SSRF), `Produto.videoUrl` + DTOs + service wiring, `ProdutoAdminSummaryResponse` + `ProdutoRepository.filtrar`, `GET /admin/catalog/products` com filtros, `POST .../{id}/images/upload` multipart reusando `PhotoStorage`. Faltam: T10 (categoria restaurar) + T11 (smoke backend) + T12-T22 (frontend admin/storefront) + T23 (docs). Plano completo em [`docs/superpowers/plans/2026-05-17-admin-slice2-catalog.md`](./docs/superpowers/plans/2026-05-17-admin-slice2-catalog.md); histórico em [`ai-memory/roadmap/fase-6-pendencias.md`](./ai-memory/roadmap/fase-6-pendencias.md).
 
 **Objetivo:** Painel administrativo separado do storefront com dashboards, CRUDs e relatórios.
 

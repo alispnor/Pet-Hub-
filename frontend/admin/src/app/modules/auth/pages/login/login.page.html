@@ -1,0 +1,38 @@
+<section class="min-h-screen flex items-center justify-center bg-graphite-50 px-4">
+  <div class="w-full max-w-sm">
+    <header class="text-center mb-8">
+      <h1 class="text-2xl font-display font-semibold text-graphite-900">Pet Hub Admin</h1>
+      <p class="mt-1 text-sm text-graphite-600">Entre com sua conta administrativa</p>
+    </header>
+
+    <form [formGroup]="formulario" (ngSubmit)="submeter()"
+          class="rounded-lg border border-graphite-200 bg-graphite-0 p-6 space-y-4 shadow-sm">
+
+      <div>
+        <label class="block text-sm font-medium text-graphite-700" for="email">E-mail</label>
+        <input id="email" type="email" formControlName="email" autocomplete="email"
+               class="mt-1 w-full rounded-md border-graphite-300" />
+        <p *ngIf="formulario.controls.email.touched && formulario.controls.email.errors?.['email']"
+           class="text-xs text-red-600 mt-1">Informe um e-mail válido.</p>
+      </div>
+
+      <div>
+        <label class="block text-sm font-medium text-graphite-700" for="senha">Senha</label>
+        <input id="senha" type="password" formControlName="senha" autocomplete="current-password"
+               class="mt-1 w-full rounded-md border-graphite-300" />
+        <p *ngIf="formulario.controls.senha.touched && formulario.controls.senha.errors?.['minlength']"
+           class="text-xs text-red-600 mt-1">Senha deve ter pelo menos 8 caracteres.</p>
+      </div>
+
+      <button type="submit" class="btn-primary w-full py-2"
+              [disabled]="formulario.invalid || submetendo()">
+        {{ submetendo() ? 'Entrando...' : 'Entrar' }}
+      </button>
+
+      <p class="text-xs text-graphite-500 text-center">
+        <span class="opacity-50">Esqueci minha senha</span> · em breve
+      </p>
+    </form>
+  </div>
+  <app-toast-stack />
+</section>

@@ -23,9 +23,16 @@ export class PaymentMethodService {
     return this.http.post<FormaPagamentoResponse>(`${this.api}/customers/me/payment-methods`, req);
   }
 
+  remove(id: number): Observable<void> {
+    return this.http.delete<void>(`${this.api}/customers/me/payment-methods/${id}`);
+  }
+
+  setDefault(id: number): Observable<FormaPagamentoResponse> {
+    return this.http.post<FormaPagamentoResponse>(`${this.api}/customers/me/payment-methods/${id}/default`, {});
+  }
+
   /**
    * Trafega PAN + CVV. Deve ser a única request que carrega esses campos.
-   * Resposta: token opaco + bandeira + últimos 4. Persistir só o resultado.
    */
   tokenize(req: TokenizeCardRequest): Observable<TokenizeCardResponse> {
     return this.http.post<TokenizeCardResponse>(

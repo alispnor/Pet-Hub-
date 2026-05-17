@@ -6,6 +6,8 @@ import { environment } from '@env/environment';
 import {
   CreateEnderecoRequest,
   EnderecoResponse,
+  SetDefaultRequest,
+  UpdateEnderecoRequest,
   ViaCepResponse,
 } from '../models/address';
 
@@ -20,6 +22,18 @@ export class AddressService {
 
   create(req: CreateEnderecoRequest): Observable<EnderecoResponse> {
     return this.http.post<EnderecoResponse>(`${this.api}/customers/me/addresses`, req);
+  }
+
+  update(id: number, req: UpdateEnderecoRequest): Observable<EnderecoResponse> {
+    return this.http.put<EnderecoResponse>(`${this.api}/customers/me/addresses/${id}`, req);
+  }
+
+  remove(id: number): Observable<void> {
+    return this.http.delete<void>(`${this.api}/customers/me/addresses/${id}`);
+  }
+
+  setDefault(id: number, req: SetDefaultRequest): Observable<EnderecoResponse> {
+    return this.http.post<EnderecoResponse>(`${this.api}/customers/me/addresses/${id}/default`, req);
   }
 
   /** CEP com 8 dígitos numéricos, sem máscara. */

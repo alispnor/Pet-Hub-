@@ -51,3 +51,21 @@ export const UFS: readonly UnidadeFederativa[] = [
   'MT','MS','MG','PA','PB','PR','PE','PI','RJ','RN',
   'RS','RO','RR','SC','SP','SE','TO',
 ];
+
+export interface UpdateEnderecoRequest {
+  apelido?: string;
+  cep?: string;
+  logradouro?: string;
+  numero?: string;
+  complemento?: string;
+  bairro?: string;
+  cidade?: string;
+  uf?: UnidadeFederativa;
+  tipo?: TipoEndereco;
+  ativo?: boolean;
+}
+
+export interface SetDefaultRequest {
+  padraoEntrega?: boolean;
+  padraoCobranca?: boolean;
+}

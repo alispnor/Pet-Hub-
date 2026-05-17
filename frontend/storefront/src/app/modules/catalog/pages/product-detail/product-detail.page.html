@@ -79,7 +79,7 @@
   <section *ngIf="produtoExibido.descricaoCompleta" class="mt-16 max-w-reading">
     <h2 class="text-2xl text-graphite-900">Sobre este produto</h2>
     <div class="prose prose-graphite mt-4 text-graphite-700"
-         [innerHTML]="descricaoSanitizada(produtoExibido.descricaoCompleta)"></div>
+         [innerHTML]="produtoExibido.descricaoCompleta | safeHtml"></div>
   </section>
 
   <section *ngIf="listaEspecificacoes(produtoExibido).length" class="mt-12">

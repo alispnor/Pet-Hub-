@@ -9,6 +9,7 @@ import { CatalogService } from '@modules/catalog/services/catalog.service';
 import { ProdutoDetail, ProdutoImagem } from '@modules/catalog/models/catalog';
 import { PriceDisplayComponent } from '@shared/components/price-display/price-display.component';
 import { ShippingCalculatorComponent } from '@shared/components/shipping-calculator/shipping-calculator.component';
+import { SafeHtmlPipe } from '@shared/pipes/safe-html.pipe';
 
 interface EspecificacaoExibida {
   label: string;
@@ -18,7 +19,7 @@ interface EspecificacaoExibida {
 @Component({
   selector: 'app-product-detail-page',
   standalone: true,
-  imports: [CommonModule, RouterLink, PriceDisplayComponent, ShippingCalculatorComponent],
+  imports: [CommonModule, RouterLink, PriceDisplayComponent, ShippingCalculatorComponent, SafeHtmlPipe],
   templateUrl: './product-detail.page.html',
 })
 export class ProductDetailPage implements OnInit {
@@ -103,20 +104,6 @@ export class ProductDetailPage implements OnInit {
       label: this.humanizarChave(chave),
       value: this.formatarValor(valor),
     }));
-  }
-
-  /**
-   * O backend devolve descricaoCompleta como texto plano (no seed). Para mitigar
-   * XSS caso algum admin colar HTML rich no futuro, escapamos < e > antes de
-   * preencher innerHTML. Quando entrar um sanitizador real (Slice 4+), trocar
-   * por DOMPurify via pipe dedicado.
-   */
-  descricaoSanitizada(textoCru: string): string {
-    return textoCru
-      .replace(/&/g, '&amp;')
-      .replace(/</g, '&lt;')
-      .replace(/>/g, '&gt;')
-      .replace(/\n/g, '<br>');
   }
 
   private carregarProduto(sku: string): void {

@@ -1,0 +1,61 @@
+<div class="min-h-screen flex flex-col bg-graphite-50">
+  <header class="h-14 border-b border-graphite-200 bg-graphite-0 flex items-center px-4 gap-4">
+    <button type="button" class="md:hidden p-2 -ml-2 text-graphite-700"
+            (click)="abrirDrawer()" aria-label="Abrir menu">☰</button>
+    <h1 class="font-display font-semibold text-graphite-900">Pet Hub Admin</h1>
+    <div class="ml-auto flex items-center gap-3">
+      <span class="text-sm text-graphite-700 hidden sm:inline">{{ user()?.nome }}</span>
+      <span [class]="badgeClasses()" class="rounded-full px-2 py-0.5 text-xs">
+        {{ rotuloRole() }}
+      </span>
+      <button type="button" class="btn-ghost text-sm py-1.5 px-3" (click)="sair()">Sair</button>
+    </div>
+  </header>
+
+  <div class="flex flex-1 overflow-hidden">
+    <aside [class.w-16]="!sidebarPinada()" [class.w-50]="sidebarPinada()"
+           class="hidden md:flex flex-col border-r border-graphite-200 bg-graphite-0 transition-all overflow-y-auto">
+      <button type="button" (click)="alternarPin()"
+              [attr.aria-label]="sidebarPinada() ? 'Recolher sidebar' : 'Fixar sidebar'"
+              [attr.aria-pressed]="sidebarPinada()"
+              class="self-end p-2 text-graphite-500 hover:text-graphite-700">📌</button>
+      <ng-container *ngTemplateOutlet="navItens; context: { compacta: !sidebarPinada() }"></ng-container>
+    </aside>
+
+    <div *ngIf="drawerAberto()" class="md:hidden fixed inset-0 z-40 flex" (keydown.escape)="fecharDrawer()">
+      <div class="absolute inset-0 bg-graphite-900/40" (click)="fecharDrawer()" aria-hidden="true"></div>
+      <aside class="relative flex flex-col w-64 bg-graphite-0 px-2 py-4 shadow-xl animate-slide-in">
+        <button type="button" (click)="fecharDrawer()" class="self-end p-2 text-graphite-700"
+                aria-label="Fechar menu">✕</button>
+        <ng-container *ngTemplateOutlet="navItens; context: { compacta: false }"></ng-container>
+      </aside>
+    </div>
+
+    <main class="flex-1 p-6 md:p-8 max-w-page mx-auto w-full overflow-y-auto">
+      <router-outlet />
+    </main>
+  </div>
+
+  <app-toast-stack />
+  <app-confirm-dialog />
+</div>
+
+<ng-template #navItens let-compacta="compacta">
+  <nav class="flex-1 flex flex-col gap-1 px-2 py-2" aria-label="Navegação principal">
+    <a *ngFor="let item of itensMenu"
+       [routerLink]="item.habilitada ? item.rota : null"
+       [routerLinkActiveOptions]="{ exact: !!item.exact }"
+       routerLinkActive="bg-coral-50 text-coral-700"
+       [attr.aria-disabled]="!item.habilitada ? 'true' : null"
+       [class.pointer-events-none]="!item.habilitada"
+       [class.opacity-50]="!item.habilitada"
+       class="flex items-center gap-3 rounded-md px-3 py-2 text-sm text-graphite-700 hover:bg-graphite-100"
+       [title]="compacta ? item.rotulo : ''"
+       [attr.aria-label]="item.rotulo"
+       (click)="fecharDrawer()">
+      <span aria-hidden="true">{{ item.icone }}</span>
+      <span *ngIf="!compacta">{{ item.rotulo }}</span>
+      <span *ngIf="!compacta && !item.habilitada" class="ml-auto text-xs text-graphite-500">em breve</span>
+    </a>
+  </nav>
+</ng-template>

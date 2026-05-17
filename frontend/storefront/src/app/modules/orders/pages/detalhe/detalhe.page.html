@@ -1,0 +1,82 @@
+<section>
+  <a routerLink="/minha-conta/pedidos" class="text-sm text-coral-600 hover:text-coral-700">← Voltar para Meus pedidos</a>
+
+  <app-skeleton *ngIf="carregando()" [lines]="8" class="mt-6 block" />
+
+  <div *ngIf="erro()" class="mt-6 rounded-md border border-red-200 bg-red-50 p-4 text-sm text-red-700">
+    Não foi possível carregar o pedido.
+  </div>
+
+  <ng-container *ngIf="!carregando() && !erro() && pedido() as pedido">
+    <header class="mt-4 flex flex-wrap items-baseline justify-between gap-3">
+      <h1 class="text-2xl font-display font-semibold text-graphite-900">Pedido {{ pedido.numeroPedido }}</h1>
+      <span [class]="classesBadge(pedido.status)" class="inline-block rounded-full px-3 py-1 text-sm">
+        {{ STATUS_LABEL[pedido.status] }}
+      </span>
+    </header>
+    <p class="text-sm text-graphite-600">Realizado em {{ pedido.criadoEm | date:'dd/MM/yyyy HH:mm' }}</p>
+
+    <div *ngIf="timeline() as timelineDados" class="mt-6 rounded-lg border border-graphite-200 bg-graphite-0 p-6">
+      <app-order-timeline [timeline]="timelineDados" />
+    </div>
+
+    <div class="mt-6 grid gap-6 md:grid-cols-2">
+      <article class="rounded-lg border border-graphite-200 bg-graphite-0 p-5">
+        <h2 class="text-sm font-medium text-graphite-700">Itens</h2>
+        <ul class="mt-3 divide-y divide-graphite-200">
+          <li *ngFor="let item of pedido.itens" class="py-3 flex items-center gap-3">
+            <img *ngIf="item.fotoUrl" [src]="item.fotoUrl" alt="" class="h-12 w-12 rounded object-cover" />
+            <div class="flex-1 min-w-0">
+              <p class="text-sm font-medium text-graphite-900 truncate">{{ item.nomeProduto }}</p>
+              <p class="text-xs text-graphite-500">SKU {{ item.skuProduto }}</p>
+            </div>
+            <p class="text-sm text-graphite-700 shrink-0">
+              {{ item.quantidade }}× {{ item.precoUnitario | currency:'BRL':'symbol':'1.2-2' }}
+            </p>
+          </li>
+        </ul>
+      </article>
+
+      <article class="rounded-lg border border-graphite-200 bg-graphite-0 p-5">
+        <h2 class="text-sm font-medium text-graphite-700">Resumo</h2>
+        <dl class="mt-3 space-y-2 text-sm">
+          <div class="flex justify-between"><dt class="text-graphite-600">Subtotal</dt>
+            <dd class="text-graphite-900">{{ pedido.valorSubtotal | currency:'BRL':'symbol':'1.2-2' }}</dd></div>
+          <div *ngIf="pedido.valorDescontos > 0" class="flex justify-between">
+            <dt class="text-graphite-600">Desconto<span *ngIf="pedido.cupomCodigo"> ({{ pedido.cupomCodigo }})</span></dt>
+            <dd class="text-emerald-700">-{{ pedido.valorDescontos | currency:'BRL':'symbol':'1.2-2' }}</dd></div>
+          <div class="flex justify-between"><dt class="text-graphite-600">Frete</dt>
+            <dd class="text-graphite-900">{{ pedido.valorFrete | currency:'BRL':'symbol':'1.2-2' }}</dd></div>
+          <div class="flex justify-between border-t border-graphite-200 pt-2">
+            <dt class="font-semibold text-graphite-900">Total</dt>
+            <dd class="font-semibold text-graphite-900">{{ pedido.valorTotal | currency:'BRL':'symbol':'1.2-2' }}</dd></div>
+        </dl>
+        <p class="mt-4 text-xs text-graphite-600">
+          Pagamento: {{ pedido.formaPagamentoTipo }}
+          <span *ngIf="pedido.formaPagamentoBandeira"> · {{ pedido.formaPagamentoBandeira }}</span>
+          <span *ngIf="pedido.formaPagamentoUltimos4"> •••• {{ pedido.formaPagamentoUltimos4 }}</span>
+        </p>
+      </article>
+
+      <article class="rounded-lg border border-graphite-200 bg-graphite-0 p-5">
+        <h2 class="text-sm font-medium text-graphite-700">Endereço de entrega</h2>
+        <p class="mt-3 text-sm text-graphite-700">
+          {{ pedido.enderecoEntrega.logradouro }}, {{ pedido.enderecoEntrega.numero ?? 's/n' }}<br>
+          <span *ngIf="pedido.enderecoEntrega.complemento">{{ pedido.enderecoEntrega.complemento }}<br></span>
+          {{ pedido.enderecoEntrega.bairro }} · {{ pedido.enderecoEntrega.cidade }} / {{ pedido.enderecoEntrega.uf }}<br>
+          CEP {{ pedido.enderecoEntrega.cep }}
+        </p>
+      </article>
+
+      <article class="rounded-lg border border-graphite-200 bg-graphite-0 p-5">
+        <h2 class="text-sm font-medium text-graphite-700">Endereço de cobrança</h2>
+        <p class="mt-3 text-sm text-graphite-700">
+          {{ pedido.enderecoCobranca.logradouro }}, {{ pedido.enderecoCobranca.numero ?? 's/n' }}<br>
+          <span *ngIf="pedido.enderecoCobranca.complemento">{{ pedido.enderecoCobranca.complemento }}<br></span>
+          {{ pedido.enderecoCobranca.bairro }} · {{ pedido.enderecoCobranca.cidade }} / {{ pedido.enderecoCobranca.uf }}<br>
+          CEP {{ pedido.enderecoCobranca.cep }}
+        </p>
+      </article>
+    </div>
+  </ng-container>
+</section>

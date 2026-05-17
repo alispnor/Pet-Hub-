@@ -92,6 +92,7 @@ public class ProdutoService {
                 .ncm(request.ncm())
                 .origem(request.origem())
                 .specs(request.specs() == null ? java.util.Map.of() : request.specs())
+                .videoUrl(request.videoUrl())
                 .destacado(request.destacado())
                 .ativo(true)
                 .build();
@@ -124,6 +125,7 @@ public class ProdutoService {
         produto.setNcm(request.ncm());
         produto.setOrigem(request.origem());
         produto.setSpecs(request.specs() == null ? java.util.Map.of() : request.specs());
+        produto.setVideoUrl(request.videoUrl());
         produto.setDestacado(request.destacado());
         var response = toDetail(produtoRepository.save(produto));
         log.debug("Produto atualizado id={}", id);

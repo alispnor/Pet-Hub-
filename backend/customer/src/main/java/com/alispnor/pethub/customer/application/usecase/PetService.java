@@ -9,7 +9,7 @@ import com.alispnor.pethub.customer.domain.entity.PerfilCliente;
 import com.alispnor.pethub.customer.domain.entity.Pet;
 import com.alispnor.pethub.customer.infrastructure.persistence.PerfilClienteRepository;
 import com.alispnor.pethub.customer.infrastructure.persistence.PetRepository;
-import com.alispnor.pethub.customer.infrastructure.storage.PhotoStorage;
+import com.alispnor.pethub.common.storage.PhotoStorage;
 import com.alispnor.pethub.identity.infrastructure.persistence.UsuarioRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

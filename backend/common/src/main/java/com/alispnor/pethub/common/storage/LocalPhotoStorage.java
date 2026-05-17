@@ -1,4 +1,4 @@
-package com.alispnor.pethub.customer.infrastructure.storage;
+package com.alispnor.pethub.common.storage;
 
 import com.alispnor.pethub.common.exception.BusinessRuleException;
 import lombok.extern.slf4j.Slf4j;
@@ -34,7 +34,7 @@ public class LocalPhotoStorage implements PhotoStorage {
 
     @Override
     public String store(String namespace, Long ownerId, MultipartFile file) {
-        log.info("Salvando foto em namespace={}, ownerId={}, size={} bytes", namespace, ownerId, file.getSize());
+        log.info("Salvando arquivo em namespace={}, ownerId={}, size={} bytes", namespace, ownerId, file.getSize());
         validate(file);
 
         var ext = extensionFor(file.getContentType());
@@ -48,7 +48,7 @@ public class LocalPhotoStorage implements PhotoStorage {
         }
 
         var url = "%s/%s/%s".formatted(stripTrailingSlash(properties.publicBaseUrl()), namespace, filename);
-        log.info("Foto salva: {} ({} bytes)", url, file.getSize());
+        log.info("Arquivo salvo: {} ({} bytes)", url, file.getSize());
         return url;
     }
 

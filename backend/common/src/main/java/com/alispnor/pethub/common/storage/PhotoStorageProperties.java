@@ -1,4 +1,4 @@
-package com.alispnor.pethub.customer.infrastructure.storage;
+package com.alispnor.pethub.common.storage;
 
 import jakarta.validation.constraints.NotBlank;
 import org.springframework.boot.context.properties.ConfigurationProperties;

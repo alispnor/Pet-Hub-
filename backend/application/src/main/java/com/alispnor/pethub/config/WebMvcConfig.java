@@ -1,6 +1,6 @@
 package com.alispnor.pethub.config;
 
-import com.alispnor.pethub.customer.infrastructure.storage.PhotoStorageProperties;
+import com.alispnor.pethub.common.storage.PhotoStorageProperties;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Configuration;

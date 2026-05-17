@@ -17,6 +17,7 @@ import com.alispnor.pethub.catalog.infrastructure.persistence.ProdutoImagemRepos
 import com.alispnor.pethub.catalog.infrastructure.persistence.ProdutoRepository;
 import com.alispnor.pethub.common.exception.ConflictException;
 import com.alispnor.pethub.common.exception.ResourceNotFoundException;
+import com.alispnor.pethub.common.storage.PhotoStorage;
 import com.alispnor.pethub.identity.domain.entity.Usuario;
 import com.alispnor.pethub.identity.infrastructure.persistence.UsuarioRepository;
 import com.alispnor.pethub.identity.infrastructure.security.AuthenticatedUser;
@@ -26,6 +27,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -41,6 +43,7 @@ public class ProdutoService {
     private final CategoriaRepository categoriaRepository;
     private final UsuarioRepository usuarioRepository;
     private final ProdutoMapper produtoMapper;
+    private final PhotoStorage photoStorage;
 
     @Transactional(readOnly = true)
     public Page<ProdutoSummaryResponse> listar(String categoriaSlug, Pageable pageable) {
@@ -170,6 +173,27 @@ public class ProdutoService {
         produtoRepository.save(produto);
         var response = produtoMapper.toImagemResponse(nova);
         log.debug("Imagem adicionada produtoId={} imagemId={}", id, nova.getId());
+        return response;
+    }
+
+    @Transactional
+    public ProdutoImagemResponse adicionarImagemUpload(Long id, MultipartFile file, boolean principal) {
+        log.debug("Iniciando adicionarImagemUpload produto id={} principal={}", id, principal);
+        var produto = obrigatorio(id);
+        var url = photoStorage.store("products", produto.getId(), file);
+        if (principal) {
+            produto.getImagens().forEach(img -> img.setPrincipal(false));
+        }
+        var nova = ProdutoImagem.builder()
+                .produto(produto)
+                .url(url)
+                .ordem(produto.getImagens().size())
+                .principal(principal || produto.getImagens().isEmpty())
+                .build();
+        produto.getImagens().add(nova);
+        produtoRepository.save(produto);
+        var response = produtoMapper.toImagemResponse(nova);
+        log.debug("Imagem (upload) adicionada produtoId={} imagemId={} url={}", id, nova.getId(), url);
         return response;
     }
 

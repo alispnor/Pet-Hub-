@@ -1,0 +1,122 @@
+<section>
+  <header class="flex items-center justify-between">
+    <h1 class="text-2xl font-display font-semibold text-graphite-900">Pets</h1>
+    <button type="button" class="btn-primary text-sm py-2 px-4"
+            (click)="iniciarNovo()" [disabled]="idEmEdicao() !== null">
+      + Adicionar pet
+    </button>
+  </header>
+
+  <app-skeleton *ngIf="carregando()" [lines]="4" class="mt-6 block" />
+
+  <div *ngIf="erroCarregamento()" class="mt-6 rounded-md border border-red-200 bg-red-50 p-4 text-sm text-red-700">
+    Não foi possível carregar.
+    <button type="button" class="ml-2 underline" (click)="carregar()">Tentar de novo</button>
+  </div>
+
+  <article *ngIf="idEmEdicao() === -1" class="mt-6 rounded-lg border-2 border-coral-300 bg-coral-50/30 p-5">
+    <h2 class="text-base font-medium text-graphite-900">Novo pet</h2>
+    <ng-container *ngTemplateOutlet="formularioPet"></ng-container>
+  </article>
+
+  <ul class="mt-6 grid gap-4 md:grid-cols-2">
+    <li *ngFor="let pet of pets()" class="rounded-lg border border-graphite-200 bg-graphite-0 p-5">
+      <ng-container *ngIf="idEmEdicao() === pet.id; else cardSomenteLeitura">
+        <h2 class="text-base font-medium text-graphite-900">Editando: {{ pet.nome }}</h2>
+        <ng-container *ngTemplateOutlet="formularioPet"></ng-container>
+      </ng-container>
+
+      <ng-template #cardSomenteLeitura>
+        <div class="flex gap-4">
+          <img *ngIf="pet.fotoUrl; else semFoto" [src]="pet.fotoUrl" alt="Foto de {{ pet.nome }}"
+               class="h-20 w-20 rounded-full object-cover" />
+          <ng-template #semFoto>
+            <div class="h-20 w-20 rounded-full bg-graphite-100 flex items-center justify-center text-2xl" aria-hidden="true">🐾</div>
+          </ng-template>
+          <div class="flex-1 min-w-0">
+            <p class="text-sm font-medium text-graphite-900">{{ pet.nome }}</p>
+            <p class="text-xs text-graphite-700">
+              {{ ESPECIES_LABEL[pet.especie] }}
+              <span *ngIf="pet.raca"> · {{ pet.raca }}</span>
+            </p>
+            <p class="text-xs text-graphite-500 mt-1">
+              <span *ngIf="pet.dataNascimento">{{ calcularIdade(pet.dataNascimento) }}</span>
+              <span *ngIf="pet.pesoKg"> · {{ pet.pesoKg }} kg</span>
+              <span *ngIf="pet.porte"> · {{ PORTES_LABEL[pet.porte] }}</span>
+            </p>
+          </div>
+          <div class="flex flex-col gap-2 shrink-0">
+            <button type="button" class="btn-ghost text-xs py-1 px-2" (click)="iniciarEdicao(pet)">Editar</button>
+            <button type="button" class="text-xs py-1 px-2 text-red-600 hover:text-red-800" (click)="remover(pet)">Remover</button>
+          </div>
+        </div>
+      </ng-template>
+    </li>
+  </ul>
+
+  <p *ngIf="!carregando() && !erroCarregamento() && pets().length === 0 && idEmEdicao() !== -1"
+     class="mt-6 text-sm text-graphite-500">
+    Você ainda não cadastrou pets.
+  </p>
+</section>
+
+<ng-template #formularioPet>
+  <form [formGroup]="formulario" (ngSubmit)="salvar()" class="mt-4 grid gap-3 md:grid-cols-2">
+    <div class="md:col-span-2">
+      <label class="text-xs text-graphite-600">Nome</label>
+      <input type="text" formControlName="nome" class="mt-1 w-full rounded-md border-graphite-300" />
+    </div>
+
+    <div>
+      <label class="text-xs text-graphite-600">Espécie</label>
+      <select formControlName="especie" class="mt-1 w-full rounded-md border-graphite-300">
+        <option *ngFor="let valor of listaEspecies" [value]="valor">{{ ESPECIES_LABEL[valor] }}</option>
+      </select>
+    </div>
+
+    <div>
+      <label class="text-xs text-graphite-600">Raça</label>
+      <input type="text" formControlName="raca" class="mt-1 w-full rounded-md border-graphite-300" />
+    </div>
+
+    <div>
+      <label class="text-xs text-graphite-600">Data de nascimento</label>
+      <input type="date" formControlName="dataNascimento" class="mt-1 w-full rounded-md border-graphite-300" />
+    </div>
+
+    <div>
+      <label class="text-xs text-graphite-600">Peso (kg)</label>
+      <input type="number" formControlName="pesoKg" min="0.01" max="999.99" step="0.01"
+             class="mt-1 w-full rounded-md border-graphite-300" />
+    </div>
+
+    <div>
+      <label class="text-xs text-graphite-600">Porte</label>
+      <select formControlName="porte" class="mt-1 w-full rounded-md border-graphite-300">
+        <option value="">Não informado</option>
+        <option *ngFor="let valor of listaPortes" [value]="valor">{{ PORTES_LABEL[valor] }}</option>
+      </select>
+    </div>
+
+    <div class="md:col-span-2">
+      <label class="text-xs text-graphite-600">Observações</label>
+      <textarea formControlName="observacoes" rows="3" maxlength="2000"
+                class="mt-1 w-full rounded-md border-graphite-300"></textarea>
+    </div>
+
+    <div class="md:col-span-2">
+      <label class="text-xs text-graphite-600">Foto (máx 5 MB)</label>
+      <input type="file" accept="image/*" (change)="aoSelecionarArquivo($event)"
+             class="mt-1 block text-sm" />
+      <img *ngIf="previewFotoUrl()" [src]="previewFotoUrl()" alt="Preview"
+           class="mt-2 h-24 w-24 rounded-md object-cover" />
+    </div>
+
+    <div class="md:col-span-2 flex gap-3 pt-2">
+      <button type="submit" class="btn-primary text-sm py-2 px-4" [disabled]="formulario.invalid || salvando()">
+        {{ salvando() ? 'Salvando...' : 'Salvar' }}
+      </button>
+      <button type="button" class="btn-ghost text-sm py-2 px-4" (click)="cancelarEdicao()">Cancelar</button>
+    </div>
+  </form>
+</ng-template>

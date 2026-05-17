@@ -110,12 +110,16 @@ src/app/
 
 | Service | Estado | Responsabilidade |
 |---|---|---|
-| `PerfilService` | (stateless) | `GET /api/v1/customers/me`, `PUT /api/v1/customers/me`. |
-| `PetService` | (stateless) | `GET/POST/PUT/DELETE /api/v1/customers/me/pets` + `POST /api/v1/customers/me/pets/{id}/foto` (multipart). |
+| `PerfilService` | (stateless) | `GET /api/v1/customers/me/profile`, `PUT /api/v1/customers/me/profile`. |
+| `PetService` | (stateless) | `GET/POST/PUT/DELETE /api/v1/customers/me/pets` + `POST /api/v1/customers/me/pets/{id}/photo` (multipart, campo `file`). |
 | `OrderService` | (stateless) | `GET /api/v1/orders` (paginado), `GET /api/v1/orders/{numero}`, `GET /api/v1/orders/{numero}/timeline`. |
 | `ToastService` | `mensagens = signal<Toast[]>` | `success(msg)`, `error(msg)`, `info(msg)`, auto-dismiss 5s, dedup por timestamp. |
 
-Services existentes (`AddressService`, `PaymentMethodService`, `AuthService`, `CartService`) são consumidos sem alteração.
+**Services existentes que precisam de métodos novos:**
+- `AddressService` — adicionar `update(id, req)` (`PUT /me/addresses/{id}`), `remove(id)` (`DELETE /me/addresses/{id}`), `setDefault(id, req)` (`POST /me/addresses/{id}/default`).
+- `PaymentMethodService` — adicionar `remove(id)` (`DELETE /me/payment-methods/{id}`), `setDefault(id)` (`POST /me/payment-methods/{id}/default`).
+
+Services `AuthService`, `CartService`, `OrderService` (no-op aqui — é novo) consumidos sem alteração.
 
 ### 3.4 Componentes novos
 
@@ -175,16 +179,18 @@ Layout dos cards (grid responsivo `grid-cols-1 md:grid-cols-2 lg:grid-cols-3`):
 
 ### 4.3 `PerfilPage` (`/minha-conta/perfil`)
 
-Form único com Reactive Forms:
+Form único com Reactive Forms. **Backend `PUT /api/v1/customers/me/profile` aceita apenas:** `dataNascimento`, `genero`, `telefoneAdicional`, `aceiteTermos`, `aceiteMarketing`. Nome, email e CPF **não** são editáveis por este endpoint.
 
 | Campo | Editável | Validação | Notas |
 |---|---|---|---|
-| Nome | ✅ | required, min 2 | |
+| Nome | ❌ read-only | — | Definido no cadastro (identity); mudar exige outro fluxo. |
 | Email | ❌ read-only | — | Mudar exige fluxo dedicado (não neste slice). |
-| CPF | ❌ read-only | — | Mascarado pelo backend (`***.***.***-12`). |
-| Telefone | ✅ | regex BR | Máscara `(11) 91234-5678` via diretiva existente. |
-| Data nasc. | ✅ | date, idade ≥ 18 | `<input type="date">`. |
-| Gênero | ✅ | — | `<select>` (M, F, NB, Prefiro não informar). |
+| CPF | ❌ read-only | — | Mascarado pelo backend (`***.***.***-12`). Definir via `POST /me/profile/cpf` se ainda não tiver — fora do escopo deste slice (já cobre no cadastro). |
+| Telefone adicional | ✅ | regex `^\d{10,11}$` (sem máscara enviada ao backend) | Máscara visual `(11) 91234-5678` no input. |
+| Data nasc. | ✅ | date, `@Past` (backend) | `<input type="date">`. |
+| Gênero | ✅ | enum | `<select>` (MASCULINO, FEMININO, NAO_INFORMADO, OUTRO). |
+| Aceite termos | ✅ | boolean | Checkbox. |
+| Aceite marketing | ✅ | boolean | Checkbox. |
 
 CTA "Salvar alterações" ativa quando `form.dirty`. Toast de sucesso. Erro 422 mapeia `ProblemDetail.errors[]` pros campos.
 
@@ -220,20 +226,20 @@ Adicionar cartão (form inline expansível):
 
 Lista de cards. Cada card mostra:
 - Foto (ou placeholder) + nome do pet.
-- Espécie, raça, idade (calculada de dataNasc), peso, sexo.
+- Espécie, raça, idade (calculada de `dataNascimento`), `pesoKg`, `porte`.
 - Ações: `[Editar]` `[Remover ✕]`.
 
-Form inline com:
-- nome (required, min 2)
-- espécie (required, select: cachorro/gato/outro)
-- raça (text, opcional)
-- dataNascimento (date, opcional)
-- peso (number, opcional)
-- sexo (select: macho/fêmea/não informado)
-- observações (textarea, opcional)
+Form inline com (campos do `CreatePetRequest`/`UpdatePetRequest`):
+- `nome` (required, max 100)
+- `especie` (required, enum: `CACHORRO`, `GATO`, `AVE`, `PEIXE`, `REPTIL`, `OUTROS`)
+- `raca` (text, opcional, max 100)
+- `dataNascimento` (date, `@PastOrPresent`, opcional)
+- `pesoKg` (number, 0.01–999.99, opcional)
+- `porte` (enum opcional: `PEQUENO`, `MEDIO`, `GRANDE`, `GIGANTE`)
+- `observacoes` (textarea, opcional, max 2000)
 - Upload de foto:
   - `<input type="file" accept="image/*">` com preview client-side via `URL.createObjectURL()`.
-  - POST `/api/v1/customers/me/pets/{id}/foto` (multipart) — submetido após o save do pet (precisa do ID).
+  - `POST /api/v1/customers/me/pets/{id}/photo` (multipart, campo `file`) — submetido após save do pet (precisa do ID).
   - Limite client-side: 5MB (validação antes do upload; backend valida também).
 
 ### 4.7 `OrdersListaPage` (`/minha-conta/pedidos`)

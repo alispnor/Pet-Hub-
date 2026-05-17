@@ -1,0 +1,27 @@
+<ol [class.is-compact]="compact" class="order-timeline">
+  <li *ngFor="let etapa of timeline.etapas; let ultima = last"
+      [attr.aria-current]="ariaCurrent(etapa)"
+      class="order-timeline__item">
+
+    <div class="order-timeline__indicador">
+      <span [class]="classesBolinha(etapa)"
+            class="order-timeline__bolinha"
+            aria-hidden="true">
+        <ng-container *ngIf="etapa.status === 'CONCLUIDA' && !ehTerminalNegativo(etapa) && !ehTerminalPositivoComAlerta(etapa)">✓</ng-container>
+        <ng-container *ngIf="ehTerminalNegativo(etapa)">✕</ng-container>
+        <ng-container *ngIf="ehTerminalPositivoComAlerta(etapa)">↩</ng-container>
+      </span>
+      <span *ngIf="!ultima" [class]="classesConector(etapa)" class="order-timeline__conector"></span>
+    </div>
+
+    <div class="order-timeline__conteudo">
+      <p [class]="classesLabel(etapa)" class="order-timeline__nome text-sm">{{ etapa.nome }}</p>
+      <ng-container *ngIf="!compact">
+        <p *ngIf="etapa.tempoDecorrido" class="text-xs text-graphite-500 mt-0.5">{{ etapa.tempoDecorrido }}</p>
+        <p *ngIf="!etapa.tempoDecorrido && etapa.previsaoEntrega" class="text-xs text-graphite-500 mt-0.5">
+          Previsão: {{ etapa.previsaoEntrega }}
+        </p>
+      </ng-container>
+    </div>
+  </li>
+</ol>

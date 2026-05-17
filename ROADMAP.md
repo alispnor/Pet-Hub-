@@ -146,7 +146,9 @@ Status: ⬜ Pendente · 🚧 Em andamento · ✅ Concluída
 
 ---
 
-## Fase 6 — Frontend Admin (Back-Office) · ⬜
+## Fase 6 — Frontend Admin (Back-Office) · 🚧 (slice 6.1 ✅, slices 6.2-6.5 pendentes)
+
+> **Slice 6.1 entregue em 2026-05-17.** Scaffold `frontend/admin` (Angular 17, porta 4244), AdminAuthService com validação de role no login (rejeita ROLE_CLIENTE), AdminShell (topbar + sidebar com toggle de pin + drawer mobile), `/login` e `/dashboard` placeholder. Plano dos 5 slices em [`ai-memory/roadmap/fase-6-decomposicao.md`](./ai-memory/roadmap/fase-6-decomposicao.md); histórico em [`ai-memory/roadmap/fase-6-pendencias.md`](./ai-memory/roadmap/fase-6-pendencias.md).
 
 **Objetivo:** Painel administrativo separado do storefront com dashboards, CRUDs e relatórios.
 

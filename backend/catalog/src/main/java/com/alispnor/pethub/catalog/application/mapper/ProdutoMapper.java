@@ -1,5 +1,6 @@
 package com.alispnor.pethub.catalog.application.mapper;
 
+import com.alispnor.pethub.catalog.application.dto.ProdutoAdminSummaryResponse;
 import com.alispnor.pethub.catalog.application.dto.ProdutoDetailResponse;
 import com.alispnor.pethub.catalog.application.dto.ProdutoImagemResponse;
 import com.alispnor.pethub.catalog.application.dto.ProdutoSummaryResponse;
@@ -21,6 +22,15 @@ public interface ProdutoMapper {
     @Mapping(target = "preco", source = "preco")
     ProdutoSummaryResponse toSummary(Produto produto, BigDecimal preco);
 
+    @Mapping(target = "categoriaId", source = "produto.categoria.id")
+    @Mapping(target = "categoriaNome", source = "produto.categoria.nome")
+    @Mapping(target = "categoriaSlug", source = "produto.categoria.slug")
+    @Mapping(target = "imagemPrincipal", source = "produto.imagens", qualifiedByName = "imagemPrincipalUrl")
+    @Mapping(target = "totalImagens", source = "produto.imagens", qualifiedByName = "totalImagens")
+    @Mapping(target = "temVideo", source = "produto", qualifiedByName = "temVideo")
+    @Mapping(target = "preco", source = "preco")
+    ProdutoAdminSummaryResponse toAdminSummary(Produto produto, BigDecimal preco);
+
     @Mapping(target = "preco", source = "preco")
     @Mapping(target = "categoria", source = "produto.categoria")
     @Mapping(target = "imagens", source = "produto.imagens")
@@ -38,5 +48,15 @@ public interface ProdutoMapper {
                 .map(ProdutoImagem::getUrl)
                 .findFirst()
                 .orElseGet(() -> imagens.get(0).getUrl());
+    }
+
+    @Named("totalImagens")
+    default int totalImagens(List<ProdutoImagem> imagens) {
+        return imagens == null ? 0 : imagens.size();
+    }
+
+    @Named("temVideo")
+    default boolean temVideo(Produto produto) {
+        return produto.getVideoUrl() != null && !produto.getVideoUrl().isBlank();
     }
 }

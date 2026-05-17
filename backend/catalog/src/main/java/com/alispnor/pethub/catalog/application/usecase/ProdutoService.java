@@ -2,6 +2,7 @@ package com.alispnor.pethub.catalog.application.usecase;
 
 import com.alispnor.pethub.catalog.application.dto.AdicionarImagemRequest;
 import com.alispnor.pethub.catalog.application.dto.DefinirPrecoRequest;
+import com.alispnor.pethub.catalog.application.dto.ProdutoAdminSummaryResponse;
 import com.alispnor.pethub.catalog.application.dto.ProdutoDetailResponse;
 import com.alispnor.pethub.catalog.application.dto.ProdutoImagemResponse;
 import com.alispnor.pethub.catalog.application.dto.ProdutoRequest;
@@ -57,6 +58,16 @@ public class ProdutoService {
         log.debug("Iniciando buscar produtos query={}", query);
         var result = produtoRepository.search(query, pageable).map(this::toSummary);
         log.debug("Buscar OK, total={}", result.getTotalElements());
+        return result;
+    }
+
+    @Transactional(readOnly = true)
+    public Page<ProdutoAdminSummaryResponse> listarAdmin(String query, Long categoriaId, Boolean ativo, Pageable pageable) {
+        log.debug("Iniciando listarAdmin q={} categoriaId={} ativo={} pageable={}", query, categoriaId, ativo, pageable);
+        var queryNormalizado = (query == null || query.isBlank()) ? null : query.trim();
+        var page = produtoRepository.filtrar(queryNormalizado, categoriaId, ativo, pageable);
+        var result = page.map(this::toAdminSummary);
+        log.debug("ListarAdmin OK total={}", result.getTotalElements());
         return result;
     }
 
@@ -221,5 +232,12 @@ public class ProdutoService {
                 .map(PrecoVigente::getValorBase)
                 .orElse(BigDecimal.ZERO);
         return produtoMapper.toDetail(p, preco);
+    }
+
+    private ProdutoAdminSummaryResponse toAdminSummary(Produto produto) {
+        var preco = precoVigenteRepository.findVigenteByProduto(produto)
+                .map(PrecoVigente::getValorBase)
+                .orElse(BigDecimal.ZERO);
+        return produtoMapper.toAdminSummary(produto, preco);
     }
 }

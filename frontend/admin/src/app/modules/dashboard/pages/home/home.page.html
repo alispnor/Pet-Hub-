@@ -1,0 +1,37 @@
+<section>
+  <h1 class="text-2xl font-display font-semibold text-graphite-900">Dashboard</h1>
+  <p class="mt-1 text-sm text-graphite-600">
+    Olá, {{ user()?.nome }} · {{ rotuloRole() }}.
+  </p>
+
+  <div class="mt-6 grid gap-4 grid-cols-1 md:grid-cols-3">
+    <article class="rounded-lg border border-graphite-200 bg-graphite-0 p-5">
+      <h2 class="text-sm font-medium text-graphite-700">Pedidos hoje</h2>
+      <p class="mt-2 text-3xl font-display text-graphite-400">--</p>
+      <p class="text-xs text-graphite-500 mt-2">em breve (Slice 6.5)</p>
+    </article>
+
+    <article class="rounded-lg border border-graphite-200 bg-graphite-0 p-5">
+      <h2 class="text-sm font-medium text-graphite-700">Estoque crítico</h2>
+      <p class="mt-2 text-3xl font-display text-graphite-400">--</p>
+      <p class="text-xs text-graphite-500 mt-2">em breve (Slice 6.5)</p>
+    </article>
+
+    <article class="rounded-lg border border-graphite-200 bg-graphite-0 p-5">
+      <h2 class="text-sm font-medium text-graphite-700">Receita 7d</h2>
+      <p class="mt-2 text-3xl font-display text-graphite-400">R$ --</p>
+      <p class="text-xs text-graphite-500 mt-2">em breve (Slice 6.5)</p>
+    </article>
+  </div>
+
+  <div class="mt-8 rounded-lg border border-dashed border-graphite-300 bg-graphite-0 p-6 text-sm text-graphite-600">
+    <p class="font-medium text-graphite-700 mb-2">Slice 6.1 entregue</p>
+    <p>Esta fundação habilita os próximos slices da Fase 6:</p>
+    <ul class="mt-2 list-disc list-inside space-y-0.5 text-graphite-600">
+      <li>Slice 6.2 — Catálogo (produtos, categorias)</li>
+      <li>Slice 6.3 — Operações (estoque, pedidos, etiqueta PDF)</li>
+      <li>Slice 6.4 — Comercial (cupons, promoções, impostos)</li>
+      <li>Slice 6.5 — Insights (dashboards reais, clientes, audit log, SSE)</li>
+    </ul>
+  </div>
+</section>

@@ -2,6 +2,7 @@ package com.alispnor.pethub.catalog.infrastructure.rest;
 
 import com.alispnor.pethub.catalog.application.dto.AdicionarImagemRequest;
 import com.alispnor.pethub.catalog.application.dto.DefinirPrecoRequest;
+import com.alispnor.pethub.catalog.application.dto.ProdutoAdminSummaryResponse;
 import com.alispnor.pethub.catalog.application.dto.ProdutoDetailResponse;
 import com.alispnor.pethub.catalog.application.dto.ProdutoImagemResponse;
 import com.alispnor.pethub.catalog.application.dto.ProdutoRequest;
@@ -61,6 +62,17 @@ public class ProdutoController {
     }
 
     // ─── Admin ────────────────────────────────────────────────
+
+    @GetMapping("/api/v1/admin/catalog/products")
+    @PreAuthorize("hasAnyRole('ADMIN_LOJA','GERENTE','OPERADOR')")
+    @Operation(summary = "Lista produtos para o admin (incluindo inativos) com filtros e ordenação")
+    public PageableResponse<ProdutoAdminSummaryResponse> listarAdmin(
+            @RequestParam(required = false) String q,
+            @RequestParam(required = false) Long categoriaId,
+            @RequestParam(required = false) Boolean ativo,
+            @PageableDefault(size = 20, sort = "nome") Pageable pageable) {
+        return PageableResponse.of(produtoService.listarAdmin(q, categoriaId, ativo, pageable));
+    }
 
     @PostMapping("/api/v1/admin/catalog/products")
     @PreAuthorize("hasAnyRole('ADMIN_LOJA','GERENTE')")

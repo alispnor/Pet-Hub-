@@ -10,7 +10,8 @@ import {
   AuthResponse,
   LoginRequest,
   Role,
-  ROLES_ADMIN,
+  rolePrincipal,
+  temAlgumaRoleAdmin,
 } from '@core/models/auth';
 import { ForbiddenLoginError } from '@core/models/errors';
 
@@ -26,18 +27,19 @@ export class AdminAuthService {
 
   readonly accessToken = this._accessToken.asReadonly();
   readonly currentUser = this._user.asReadonly();
-  readonly currentUserRole = computed<Role | null>(() => this._user()?.role ?? null);
+  readonly currentUserRoles = computed<Role[]>(() => this._user()?.roles ?? []);
+  readonly rolePrincipal = computed<Role | null>(() => rolePrincipal(this._user()?.roles));
   readonly isAuthenticated = computed(() => this._accessToken() !== null);
-  readonly isOperador = computed(() => this.currentUserRole() === 'ROLE_OPERADOR');
-  readonly isGerente = computed(() => this.currentUserRole() === 'ROLE_GERENTE');
-  readonly isAdmin = computed(() => this.currentUserRole() === 'ROLE_ADMIN_LOJA');
+  readonly isOperador = computed(() => this.currentUserRoles().includes('ROLE_OPERADOR'));
+  readonly isGerente = computed(() => this.currentUserRoles().includes('ROLE_GERENTE'));
+  readonly isAdmin = computed(() => this.currentUserRoles().includes('ROLE_ADMIN_LOJA'));
 
   login(req: LoginRequest): Observable<AdminUser> {
     return this.http
       .post<AuthResponse>(`${this.api}/auth/login`, req, { withCredentials: true })
       .pipe(
         switchMap(res => {
-          if (!ROLES_ADMIN.includes(res.usuario.role)) {
+          if (!temAlgumaRoleAdmin(res.usuario.roles)) {
             return this.http
               .post(`${this.api}/auth/logout`, {}, { withCredentials: true })
               .pipe(

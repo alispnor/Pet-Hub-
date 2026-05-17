@@ -8,11 +8,12 @@ export function roleGuard(rolesPermitidas: Role[]): CanActivateFn {
   return () => {
     const auth = inject(AdminAuthService);
     const router = inject(Router);
-    const role = auth.currentUserRole();
-    if (!role) {
+    const rolesDoUsuario = auth.currentUserRoles();
+    if (rolesDoUsuario.length === 0) {
       return router.parseUrl('/login');
     }
-    if (!rolesPermitidas.includes(role)) {
+    const temPermissao = rolesDoUsuario.some(role => rolesPermitidas.includes(role));
+    if (!temPermissao) {
       return router.parseUrl('/dashboard');
     }
     return true;

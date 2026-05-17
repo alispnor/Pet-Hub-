@@ -15,7 +15,7 @@ export class DashboardHomePage {
 
   readonly user = this.auth.currentUser;
   readonly rotuloRole = computed(() => {
-    const role = this.user()?.role;
+    const role = this.auth.rolePrincipal();
     return role ? ROLE_LABEL[role] : '';
   });
 }

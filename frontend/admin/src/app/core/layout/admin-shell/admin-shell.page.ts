@@ -3,7 +3,7 @@ import { CommonModule } from '@angular/common';
 import { RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
 
 import { AdminAuthService } from '@core/services/admin-auth.service';
-import { Role, ROLE_BADGE_CLASSES, ROLE_LABEL } from '@core/models/auth';
+import { ROLE_BADGE_CLASSES, ROLE_LABEL } from '@core/models/auth';
 import { ToastStackComponent } from '@shared/components/toast-stack/toast-stack.component';
 import { ConfirmDialogComponent } from '@shared/components/confirm-dialog/confirm-dialog.component';
 
@@ -35,16 +35,17 @@ export class AdminShellPage {
   private readonly auth = inject(AdminAuthService);
 
   readonly user = this.auth.currentUser;
+  readonly rolePrincipal = this.auth.rolePrincipal;
   readonly sidebarPinada = signal<boolean>(this.lerEstadoInicial());
   readonly drawerAberto = signal(false);
 
   readonly badgeClasses = computed(() => {
-    const role = this.user()?.role;
+    const role = this.rolePrincipal();
     return role ? ROLE_BADGE_CLASSES[role] : '';
   });
 
   readonly rotuloRole = computed(() => {
-    const role = this.user()?.role;
+    const role = this.rolePrincipal();
     return role ? ROLE_LABEL[role] : '';
   });
 

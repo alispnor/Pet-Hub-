@@ -1,6 +1,6 @@
 # Fase 5 — Pendências e checklist
 
-> **Status:** Slices 1-3 ✅ entregues em 2026-05-14 a 2026-05-16. Slice 4 (minha conta + timeline) ⏳ pendente.
+> **Status:** Slices 1-4 ✅ entregues em 2026-05-14 a 2026-05-17. **Fase 5 concluída.**
 > Testes Karma/Jest formais continuam dívida acumulada (mesmo bloqueio das Fases 1-4).
 
 ## ✅ Slices entregues
@@ -53,14 +53,48 @@ Commits sequenciais: `ee6110b` (cart page + badge + PDP wire) → `d550766` (add
 
 **Faltam validações UX no browser** (foco do smoke manual do Ali): confete dispara 1×, dialog modal "Estoque mudou" abre, stepper indica progresso visual, toggle olho na senha, checkbox manter conectado, navegação back/forward entre passos preserva state.
 
-## ⏳ Slice 4 — Minha conta + Timeline visual
+### Slice 4 — Minha conta + Timeline visual (`c259295` → `c6ee32e`)
 
-Último slice da Fase 5. Entrega:
-- `/minha-conta` overview (cards perfil/endereços/cartões/pets/pedidos).
-- CRUDs em `modules/customer/pages/{perfil,enderecos,cartoes,pets}/` (services + models já existem).
-- `modules/orders/` (NOVO) com `pages/lista-pedidos` e `pages/detalhe-pedido` (**OrderTimelineComponent** — destaque visual da Fase 5).
-- Habilitar CTA "Acompanhar pedido" da tela de sucesso (hoje `disabled`).
-- `shared/pipes/safe-html.pipe.ts` com DOMPurify (substitui escape manual no product-detail).
+20 commits sequenciais entregues em 2026-05-17:
+- `01-add dompurify dependency` (`c259295`)
+- `02-safe-html pipe with dompurify` (`abf238f`) — substituiu `descricaoSanitizada()` no product-detail
+- `03-skeleton shared component` (`e18d8d5`)
+- `04-toast service and stack` (`b1b3a8d`)
+- `05-confirm dialog with native dialog element` (`4f107a2`)
+- `06-perfil model and service` (`c14e20c`)
+- `07-pet model and service` (`a30bb69`)
+- `08-order model and service` (`a4f7a3c`)
+- `09-extend address and payment services` (`5392d6f`)
+- `10-account shell with sidebar and drawer` (`7fd4b45`)
+- `11-overview page with live cards` (`40cf9ba`)
+- `12-perfil page with reactive form` (`5688cb4`)
+- `13-enderecos page with inline form` (`8f51fad`)
+- `14-cartoes page with tokenization` (`0b23e7a`)
+- `15-pets page with photo upload` (`2abe24f`)
+- `16-order timeline component (visual highlight)` (`471f432`)
+- `17-orders list with url-synced filters` (`88bccf6`)
+- `18-order detail page with full timeline` (`f30a8b3`)
+- `19-enable acompanhar pedido cta` (`c6ee32e`)
+- `20-roadmap fase 5 concluida` (este commit)
+
+**Decisões congeladas (Slice 4):**
+- `/minha-conta` é um shell com sidebar vertical em md+ e drawer hambúrguer no mobile, com 7 sub-rotas (`''`, `perfil`, `enderecos`, `cartoes`, `pets`, `pedidos`, `pedidos/:numero`).
+- Overview com 5 cards carregados via `forkJoin` + `catchError` por chamada — falha isolada por card, retry manual.
+- CRUDs com lista + form inline expansível (sem modais aninhados).
+- Cartões: sem edição — só add (com tokenize), remove, tornar padrão. PAN/CVV limpos do form imediatamente após sucesso da tokenize.
+- Pets: upload de foto pós-save, preview client-side via `URL.createObjectURL()`, limite 5MB.
+- `OrderTimelineComponent` híbrido: horizontal em `≥ md`, vertical em mobile via media query no `.scss`. ATUAL com `animate-pulse` + ring; CANCELADO/REJEITADO em vermelho; DEVOLVIDO em âmbar. `prefers-reduced-motion` desabilita pulse.
+- Lista de pedidos: filtros (status, data início/fim) sincronizados com query params; **sem mini-timeline** na lista (custo de payload).
+- Detalhe de pedido: 2 chamadas paralelas (detalhe + timeline) via `forkJoin`; snapshots de endereço tipados como `EnderecoSnapshot`.
+- `SafeHtmlPipe` (DOMPurify) com whitelist conservadora: `<p>`, `<br>`, `<strong>`, `<em>`, `<ul>`, `<ol>`, `<li>`, `<a>`. Substitui escape manual no `product-detail`.
+- Toast e ConfirmDialog: services com signal + componentes hostados uma vez no `MainLayoutComponent` (sem libs externas).
+- Skeleton extraído pra `shared/components/skeleton/`.
+
+**Validações smoke programáticas (2026-05-17):**
+- `npm run build` verde após cada task (20 builds bem-sucedidos).
+- `GET /minha-conta` retorna 200 com storefront servindo o shell.
+- `GET /actuator/health` retorna 200 (backend funcionando).
+- Validação UX completa no browser fica como dívida do Ali (smoke checklist §9 do spec).
 
 ## ⚠️ Dívida técnica restante
 
@@ -103,4 +137,4 @@ cd /home/ali/projects/pet-hub/frontend/storefront && npm start
 
 Storefront em http://127.0.0.1:4242. Matriz completa de usuários teste no README raiz. Cartões: `4111 1111 1111 1111` aprova; `4111 1111 1111 9400` (Luhn-válido last4=4000) rejeita.
 
-Próximo passo: abrir Slice 4 (minha conta + timeline visual).
+**Fase 5 entregue. Próxima: Fase 6 (Admin back-office).**

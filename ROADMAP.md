@@ -125,7 +125,9 @@ Status: ⬜ Pendente · 🚧 Em andamento · ✅ Concluída
 
 ---
 
-## Fase 5 — Frontend Storefront (Angular) · 🚧 (slices 1-3 ✅, slice 4 pendente)
+## Fase 5 — Frontend Storefront (Angular) · ✅
+
+> **Entregue em 2026-05-17.** Slice 4 fechou a Fase 5 com `/minha-conta` (sidebar + 6 sub-rotas), CRUDs completos (perfil, endereços, cartões, pets), módulo `orders` com `OrderTimelineComponent` (destaque visual híbrido h-md+/v-mobile) e `SafeHtmlPipe` com DOMPurify. 20 commits sequenciais (`feat(storefront): slice4 01-..` a `19-..` + docs). Testes Karma/Jest formais continuam dívida acumulada (mesmo bloqueio das Fases 1-4). Histórico em [`ai-memory/roadmap/fase-5-pendencias.md`](./ai-memory/roadmap/fase-5-pendencias.md).
 
 **Objetivo:** Loja virtual completa consumindo APIs das Fases 1–4.
 
